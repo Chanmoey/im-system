@@ -3,7 +3,6 @@ package com.moon.im.service.user.model.req;
 import com.moon.im.common.model.RequestBase;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -14,6 +13,6 @@ import java.util.List;
 @Data
 public class ImportUserReq extends RequestBase {
 
-    private List<ImUserDataEntity> userList;
+    private List<ImUserDataEntity> userData;
 
 }

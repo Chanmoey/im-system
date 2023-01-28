@@ -30,19 +30,19 @@ public class ResponseVO<T> {
         return new ResponseVO<>(200, SUCCESS, data);
     }
 
-    public static ResponseVO<Object> successResponse() {
+    public static <T> ResponseVO<T> successResponse() {
         return new ResponseVO<>(200, SUCCESS);
     }
 
-    public static ResponseVO<Object> errorResponse() {
+    public static <T> ResponseVO<T> errorResponse() {
         return new ResponseVO<>(500, SERVER_ERROR);
     }
 
-    public static ResponseVO<Object> errorResponse(int code, String msg) {
+    public static <T> ResponseVO<T> errorResponse(int code, String msg) {
         return new ResponseVO<>(code, msg);
     }
 
-    public static ResponseVO<Object> errorResponse(ApplicationExceptionEnum enums) {
+    public static <T> ResponseVO<T> errorResponse(ApplicationExceptionEnum enums) {
         return new ResponseVO<>(enums.getCode(), enums.getError());
     }
 
