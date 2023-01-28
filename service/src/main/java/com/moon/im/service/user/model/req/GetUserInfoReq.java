@@ -11,5 +11,4 @@ public class GetUserInfoReq extends RequestBase {
 
     private List<String> userIds;
 
-
 }

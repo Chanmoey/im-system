@@ -117,3 +117,7 @@ mybatis-plus:
 #
 #mpp:
 #  entityBasePath: com.lld.im.service.friendship.dao
+
+im-system:
+  api-package: com.moon.im.*.controller
+
