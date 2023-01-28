@@ -1,0 +1,119 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 12345678
+    url: jdbc:mysql://127.0.0.1:3306/im-core?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
+    username: root
+
+#  redis:
+#    host: 127.0.0.1
+#    port: 6379
+#    jedis:
+#      pool:
+#        max-active: 100
+#        max-idle: 100
+#        max-wait: 1000
+#        min-idle: 10
+#    password:
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    addresses: localhost
+#    username: guest
+#    password: guest
+#    #    virtual-host:
+#    listener:
+#      simple:
+#        concurrency: 5
+#        max-concurrency: 10
+#        acknowledge-mode: MANUAL
+#        prefetch: 1
+#    publisher-confirms: true
+#    publisher-returns: true
+#    template:
+#      mandatory: true
+#    cache:
+#      connection:
+#        mode: channel
+#      channel:
+#        size: 36
+#        checkout-timeout: 0
+#  application:
+#    name: im-core
+
+
+# logger ??
+logging:
+  config: classpath:logback-spring.xml
+
+server:
+  port: 8000
+
+#appConfig:
+#  appId: 10000
+#  privateKey: 123456
+#  zkAddr: 127.0.0.1:2181 # zk????
+#  zkConnectTimeOut: 50000 #zk????
+#  imRouteWay: 1 # ????1?? 2?? 3hash
+#  consistentHashWay: 1 # ???????hash????hash?? 1 TreeMap 2 ???Map
+#  tcpPort: 9000 # tcp??
+#  webSocketPort: 19000 # webSocket??
+#  needWebSocket: true #??????webSocket
+#  loginModel: 1
+#  messageRecallTimeOut: 1200000000 #????????????
+#  #  *                ???????1 ??????????/??/web ?????client+imel???
+#  #  *                            2 ????/??????? + web?? ?????client+imel??web???
+#  #  *                            3 ?????????? + web ???? ????client+imel?????
+#  #  *                            4 ?????????? ??????
+#  groupMaxMemberCount: 500
+#  sendMessageCheckFriend: false # ???????????
+#  sendMessageCheckBlack: false # ???????????
+#  callbackUrl: http://127.0.0.1:8000/callback
+#  modifyUserAfterCallback: false # ????????????
+#  addFriendAfterCallback: false # ??????????
+#  addFriendBeforeCallback: false # ??????????
+#  modifyFriendAfterCallback: false # ??????????
+#  deleteFriendAfterCallback: false # ??????????
+#  addFriendShipBlackAfterCallback: false #???????????
+#  deleteFriendShipBlackAfterCallback: false #???????????
+#  createGroupAfterCallback: false # ??????????
+#  modifyGroupAfterCallback: false # ??????????
+#  destroyGroupAfterCallback: false # ??????????
+#  deleteGroupMemberAfterCallback: false # ?????????
+#  addGroupMemberAfterCallback: false # ????????
+#  addGroupMemberBeforeCallback: false # ????????
+#  sendMessageAfterCallback: false # ????????
+#  sendMessageBeforeCallback: false # ????????
+#  sendGroupMessageAfterCallback: false # ????????
+#  sendGroupMessageBeforeCallback: false # ????????
+#  offlineMessageCount: 1000 #????????
+#  deleteConversationSyncMode: 1 #1????
+#
+#
+#mqQueueName: 123
+
+mybatis-plus:
+
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      update-strategy: NOT_EMPTY
+
+#mybatis:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#httpclient:
+#  maxTotal: 100
+#  defaultMaxPerRoute: 50
+#  connectTimeout: 2000
+#  connectionRequestTimeout: 2000
+#  socketTimeout: 5000
+#  staleConnectionCheckEnabled: true
+#
+#mpp:
+#  entityBasePath: com.lld.im.service.friendship.dao

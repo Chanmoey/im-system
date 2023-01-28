@@ -26,7 +26,7 @@ public class ResponseVO<T> {
 
     private T data;
 
-    public static ResponseVO<Object> successResponse(Object data) {
+    public static <T> ResponseVO<T> successResponse(T data) {
         return new ResponseVO<>(200, SUCCESS, data);
     }
 
