@@ -19,13 +19,13 @@ public enum FriendShipErrorCode implements ApplicationExceptionEnum {
 
     TARGET_IS_BLACK_YOU(30007,"对方把你拉黑"),
 
-    REPEATSHIP_IS_NOT_EXIST(30008,"关系链记录不存在"),
+    RELATION_IS_NOT_EXIST(30008,"关系链记录不存在"),
 
     ADD_BLACK_ERROR(30009,"添加黑名單失败"),
 
     FRIEND_IS_NOT_YOUR_BLACK(30010,"好友已經不在你的黑名單内"),
 
-    NOT_APPROVER_OTHER_MAN_REQUEST(30011,"无法审批其他人的好友请求"),
+    NOT_APPROVE_OTHER_MAN_REQUEST(30011,"无法审批其他人的好友请求"),
 
     FRIEND_REQUEST_IS_NOT_EXIST(30012,"好友申请不存在"),
 

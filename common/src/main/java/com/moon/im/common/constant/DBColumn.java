@@ -19,4 +19,6 @@ public class DBColumn {
     public static final String FROM_ID = "from_id";
 
     public static final String TO_ID = "to_id";
+
+    public static final String FS_STATUS = "status";
 }

@@ -10,10 +10,7 @@ import com.moon.im.common.enums.UserErrorCode;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipMapper;
-import com.moon.im.service.friendship.model.req.AddFriendReq;
-import com.moon.im.service.friendship.model.req.FriendDto;
-import com.moon.im.service.friendship.model.req.ImportFriendShipReq;
-import com.moon.im.service.friendship.model.req.UpdateFriendReq;
+import com.moon.im.service.friendship.model.req.*;
 import com.moon.im.service.friendship.model.resp.AddFriendResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
 import com.moon.im.service.friendship.model.resp.UpdateFriendResp;
@@ -164,4 +161,66 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
             throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
         }
     }
+
+    @Override
+    public ResponseVO<Object> deleteFriend(DeleteFriendReq req) {
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.FROM_ID, req.getFromId());
+        query.eq(DBColumn.TO_ID, req.getToId());
+        ImFriendShipEntity fromItem = imFriendShipMapper.selectOne(query);
+
+        if (fromItem == null) {
+            throw new ApplicationException(FriendShipErrorCode.TO_IS_NOT_YOUR_FRIEND);
+        }
+
+        if (fromItem.getStatus() == FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode()) {
+            // 删除
+            ImFriendShipEntity update = new ImFriendShipEntity();
+            update.setStatus(FriendShipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+            imFriendShipMapper.update(update, query);
+        } else {
+            throw new ApplicationException(FriendShipErrorCode.FRIEND_IS_DELETED);
+        }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<Object> deleteAllFriend(DeleteFriendReq req) {
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.FROM_ID, req.getFromId());
+        query.eq(DBColumn.FS_STATUS, FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
+
+        ImFriendShipEntity update = new ImFriendShipEntity();
+        update.setStatus(FriendShipStatusEnum.FRIEND_STATUS_DELETE.getCode());
+        imFriendShipMapper.update(update, query);
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<Object> getAllFriendShip(GetAllFriendShipReq req) {
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.FROM_ID, req.getFromId());
+        return ResponseVO.successResponse(imFriendShipMapper.selectList(query));
+    }
+
+    @Override
+    public ResponseVO<Object> getRelation(GetRelationReq req) {
+
+        QueryWrapper<ImFriendShipEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.FROM_ID, req.getFromId());
+        query.eq(DBColumn.TO_ID, req.getToId());
+
+        ImFriendShipEntity entity = imFriendShipMapper.selectOne(query);
+
+        if (entity == null) {
+            throw new ApplicationException(FriendShipErrorCode.RELATION_IS_NOT_EXIST);
+        }
+        return ResponseVO.successResponse(entity);
+    }
+
 }
