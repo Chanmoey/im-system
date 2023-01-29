@@ -35,7 +35,7 @@ public class ImUserServiceImpl implements ImUserService {
     public ResponseVO<ImportUserResp> importUser(ImportUserReq req) {
 
         if (req.getUserData().size() > 100) {
-            // TODO 返回数量过多
+            throw new ApplicationException(UserErrorCode.IMPORT_SIZE_BEYOND);
         }
 
         List<String> successId = new ArrayList<>();

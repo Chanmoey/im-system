@@ -1,4 +1,4 @@
-package com.moon.im.service.friendship.model.req;
+package com.moon.im.service.friendship.model.resp;
 
 import lombok.Data;
 
