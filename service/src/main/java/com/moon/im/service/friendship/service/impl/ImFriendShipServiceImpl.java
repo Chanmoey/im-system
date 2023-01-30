@@ -4,16 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.moon.im.common.ResponseVO;
 import com.moon.im.common.constant.DBColumn;
-import com.moon.im.common.enums.CheckFriendShipTypeEnum;
-import com.moon.im.common.enums.FriendShipErrorCode;
-import com.moon.im.common.enums.FriendShipStatusEnum;
-import com.moon.im.common.enums.UserErrorCode;
+import com.moon.im.common.enums.*;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipMapper;
 import com.moon.im.service.friendship.model.req.*;
 import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
+import com.moon.im.service.friendship.service.ImFriendShipRequestService;
 import com.moon.im.service.friendship.service.ImFriendShipService;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import com.moon.im.service.user.service.ImUserService;
@@ -40,6 +38,9 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
 
     @Autowired
     private ImUserService imUserService;
+
+    @Autowired
+    private ImFriendShipRequestService imFriendShipRequestService;
 
     @Override
     public ResponseVO<ImportFriendShipResp> importFriendShip(ImportFriendShipReq req) {
@@ -79,8 +80,19 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
     public ResponseVO<Object> addFriend(AddFriendReq req) {
 
         checkUserIsExit(req.getFromId(), req.getAppId());
-        checkUserIsExit(req.getToItem().getToId(), req.getAppId());
-        return doAddFriend(req.getFromId(), req.getToItem(), req.getAppId());
+        ImUserDataEntity toUser = checkUserIsExit(req.getToItem().getToId(), req.getAppId()).getData();
+
+        // 对方添加好友的方式为：无需验证。
+        if (toUser.getFriendAllowType() != null
+                && toUser.getFriendAllowType() == AllowFriendTypeEnum.NOT_NEED.getCode()) {
+            return doAddFriend(req.getFromId(), req.getToItem(), req.getAppId());
+        } else {
+            // 申请流程
+            // 插入一条好友申请的记录
+            imFriendShipRequestService.addFriendshipRequest(req.getFromId(), req.getToItem(), req.getAppId());
+        }
+
+        return ResponseVO.successResponse();
     }
 
     private ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId) {
@@ -133,6 +145,25 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
             }
         }
 
+        // B -> A方向也插入一条数据
+        QueryWrapper<ImFriendShipEntity> toQuery = new QueryWrapper<>();
+        toQuery.eq(DBColumn.APP_ID, appId);
+        toQuery.eq(DBColumn.FROM_ID, dto.getToId());
+        toQuery.eq(DBColumn.TO_ID, fromId);
+        ImFriendShipEntity toItem = imFriendShipMapper.selectOne(toQuery);
+
+        if (toItem == null) {
+            toItem = new ImFriendShipEntity();
+            BeanUtils.copyProperties(dto, toItem);
+            toItem.setFromId(dto.getToId());
+            toItem.setToId(fromId);
+            toItem.setStatus(FriendShipStatusEnum.FRIEND_STATUS_NO_FRIEND.getCode());
+            toItem.setCreateTime(System.currentTimeMillis());
+            int insert = imFriendShipMapper.insert(toItem);
+            if (insert != 1) {
+                throw new ApplicationException(FriendShipErrorCode.ADD_FRIEND_ERROR);
+            }
+        }
         return ResponseVO.successResponse();
     }
 
@@ -155,14 +186,6 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         imFriendShipMapper.update(null, updateWrapper);
 
         return ResponseVO.successResponse();
-    }
-
-    private void checkUserIsExit(String userId, Integer appId) {
-        ResponseVO<ImUserDataEntity> user = imUserService.getSingleUserInfo(userId, appId);
-
-        if (!user.isOk()) {
-            throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
-        }
     }
 
     @Override
@@ -253,5 +276,56 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         }
 
         return ResponseVO.successResponse(resp);
+    }
+
+    @Override
+    public ResponseVO<Object> addBlack(AddFriendShipBlackReq req) {
+        return null;
+    }
+
+    @Override
+    public ResponseVO<Object> deleteBlack(DeleteBlackReq req) {
+        return null;
+    }
+
+    @Override
+    public ResponseVO<Object> checkBlack(CheckFriendShipReq req) {
+
+        Map<String, Integer> toIdMap
+                = req.getToIds().stream().collect(Collectors
+                .toMap(Function.identity(), s -> 0));
+        List<CheckFriendShipResp> result;
+        if (req.getCheckType() == CheckFriendShipTypeEnum.SINGLE.getType()) {
+            result = imFriendShipMapper.checkFriendShipBlack(req);
+        } else {
+            result = imFriendShipMapper.checkFriendShipBlackBoth(req);
+        }
+
+        Map<String, Integer> collect = result.stream()
+                .collect(Collectors
+                        .toMap(CheckFriendShipResp::getToId,
+                                CheckFriendShipResp::getStatus));
+        for (Map.Entry<String, Integer> entry :
+                toIdMap.entrySet()) {
+            if (!collect.containsKey(entry.getKey())) {
+                CheckFriendShipResp checkFriendShipResp = new CheckFriendShipResp();
+                checkFriendShipResp.setToId(entry.getKey());
+                checkFriendShipResp.setFromId(req.getFromId());
+                checkFriendShipResp.setStatus(entry.getValue());
+                result.add(checkFriendShipResp);
+            }
+        }
+
+        return ResponseVO.successResponse(result);
+    }
+
+    private ResponseVO<ImUserDataEntity> checkUserIsExit(String userId, Integer appId) {
+        ResponseVO<ImUserDataEntity> user = imUserService.getSingleUserInfo(userId, appId);
+
+        if (!user.isOk()) {
+            throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
+        }
+
+        return user;
     }
 }

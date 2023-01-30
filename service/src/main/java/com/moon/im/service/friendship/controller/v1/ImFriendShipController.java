@@ -37,9 +37,15 @@ public class ImFriendShipController {
         return friendService.updateFriend(req);
     }
 
-    @PostMapping("/deleteFriend")
+    @DeleteMapping("/deleteFriend")
     public ResponseVO<Object> deleteFriend(@RequestBody @Validated DeleteFriendReq req) {
         return friendService.deleteFriend(req);
+    }
+
+    @DeleteMapping("/deleteAllFriend")
+    public ResponseVO<Object> deleteAllFriend(@RequestBody @Validated DeleteFriendReq req, Integer appId) {
+        req.setAppId(appId);
+        return friendService.deleteAllFriend(req);
     }
 
     @PostMapping("/getAllFriend")
@@ -55,5 +61,20 @@ public class ImFriendShipController {
     @PostMapping("/checkFriendship")
     public ResponseVO<List<CheckFriendShipResp>> checkFriendship(@RequestBody @Validated CheckFriendShipReq req) {
         return friendService.checkFriendship(req);
+    }
+
+    @PostMapping("/addBlack")
+    public ResponseVO<Object> addBlack(@RequestBody @Validated AddFriendShipBlackReq req) {
+        return friendService.addBlack(req);
+    }
+
+    @DeleteMapping("/deleteBlack")
+    public ResponseVO<Object> deleteBlack(@RequestBody @Validated DeleteBlackReq req) {
+        return friendService.deleteBlack(req);
+    }
+
+    @PostMapping("/checkBlack")
+    public ResponseVO<Object> checkBlack(@RequestBody @Validated CheckFriendShipReq req) {
+        return friendService.checkBlack(req);
     }
 }

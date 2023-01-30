@@ -18,32 +18,36 @@ public class ImFriendShipRequestEntity {
     private String fromId;
 
     private String toId;
-    /** 备注*/
+    /**
+     * 备注
+     */
 //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String remark;
 
     //是否已读 1已读
     private Integer readStatus;
 
-    /** 好友来源*/
+    /**
+     * 好友来源
+     */
 //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String addSource;
 
-//    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String addWording;
 
     //审批状态 1同意 2拒绝
     private Integer approveStatus;
 
-//    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    //    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Long createTime;
 
     private Long updateTime;
 
-    /** 序列号*/
+    /**
+     * 序列号
+     */
     private Long sequence;
-
-
 
 
 }

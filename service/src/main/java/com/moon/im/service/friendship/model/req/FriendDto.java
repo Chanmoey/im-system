@@ -16,4 +16,6 @@ public class FriendDto {
     private String addSource;
 
     private String extra;
+
+    private String addWording;
 }

@@ -28,4 +28,10 @@ public interface ImFriendShipService {
     ResponseVO<Object> getRelation(GetRelationReq req);
 
     ResponseVO<List<CheckFriendShipResp>> checkFriendship(CheckFriendShipReq req);
+
+    ResponseVO<Object> addBlack(AddFriendShipBlackReq req);
+
+    ResponseVO<Object> deleteBlack(DeleteBlackReq req);
+
+    ResponseVO<Object> checkBlack(CheckFriendShipReq req);
 }
