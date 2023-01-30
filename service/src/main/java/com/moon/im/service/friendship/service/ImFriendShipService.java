@@ -17,6 +17,8 @@ public interface ImFriendShipService {
 
     ResponseVO<Object> addFriend(AddFriendReq req);
 
+    ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId);
+
     ResponseVO<Object> updateFriend(UpdateFriendReq req);
 
     ResponseVO<Object> deleteFriend(DeleteFriendReq req);

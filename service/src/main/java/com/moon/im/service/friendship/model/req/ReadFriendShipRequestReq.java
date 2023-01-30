@@ -7,10 +7,8 @@ import javax.validation.constraints.NotBlank;
 
 
 @Data
-public class AddFriendShipBlackReq extends RequestBase {
+public class ReadFriendShipRequestReq extends RequestBase {
 
     @NotBlank(message = "用户id不能为空")
     private String fromId;
-
-    private String toId;
 }

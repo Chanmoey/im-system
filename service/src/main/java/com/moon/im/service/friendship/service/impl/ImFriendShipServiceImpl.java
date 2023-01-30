@@ -95,7 +95,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         return ResponseVO.successResponse();
     }
 
-    private ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId) {
+    public ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId) {
         // A添加B为好友
         // Friend表插入AB和BA两条记录
         // 查询是否有记录存在，如果存在则判断状态，如果是已添加、则提示已添加，如果为添加，则修改状态

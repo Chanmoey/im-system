@@ -9,11 +9,17 @@ import com.moon.im.common.enums.RequestFriendReadStatusEnum;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipRequestEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipRequestMapper;
+import com.moon.im.service.friendship.model.req.ApproveFriendRequestReq;
 import com.moon.im.service.friendship.model.req.FriendDto;
+import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
 import com.moon.im.service.friendship.service.ImFriendShipRequestService;
+import com.moon.im.service.friendship.service.ImFriendShipService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author Chanmoey
@@ -24,6 +30,9 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
 
     @Autowired
     private ImFriendShipRequestMapper imFriendShipRequestMapper;
+
+    @Autowired
+    private ImFriendShipService imFriendShipService;
 
     @Override
     public ResponseVO<Object> addFriendshipRequest(String fromId, FriendDto dto, Integer appId) {
@@ -80,5 +89,72 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
         }
 
         return ResponseVO.successResponse();
+    }
+
+    @Override
+    @Transactional
+    public ResponseVO<Object> approveFriendshipRequest(ApproveFriendRequestReq req) {
+
+        ImFriendShipRequestEntity imFriendShipRequestEntity = imFriendShipRequestMapper.selectById(req.getId());
+        if (imFriendShipRequestEntity == null) {
+            throw new ApplicationException(FriendShipErrorCode.FRIEND_REQUEST_IS_NOT_EXIST);
+        }
+
+        if (!req.getOperater().equals(imFriendShipRequestEntity.getToId())) {
+            //只能审批发给自己的好友请求
+            throw new ApplicationException(FriendShipErrorCode.NOT_APPROVE_OTHER_MAN_REQUEST);
+        }
+
+        ImFriendShipRequestEntity update = new ImFriendShipRequestEntity();
+        update.setApproveStatus(req.getStatus());
+        update.setUpdateTime(System.currentTimeMillis());
+        update.setId(req.getId());
+        imFriendShipRequestMapper.updateById(update);
+
+
+        if (ApproverFriendRequestStatusEnum.AGREE.getCode() == req.getStatus()) {
+            //同意 ===> 去执行添加好友逻辑
+            FriendDto dto = new FriendDto();
+            dto.setAddSource(imFriendShipRequestEntity.getAddSource());
+            dto.setAddWording(imFriendShipRequestEntity.getAddWording());
+            dto.setRemark(imFriendShipRequestEntity.getRemark());
+            dto.setToId(imFriendShipRequestEntity.getToId());
+            ResponseVO<Object> responseVO = imFriendShipService
+                    .doAddFriend(imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
+
+            if (!responseVO.isOk() && responseVO.getCode() != FriendShipErrorCode.TO_IS_YOUR_FRIEND.getCode()) {
+                return responseVO;
+            }
+        }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<Object> readFriendShipRequest(ReadFriendShipRequestReq req) {
+        QueryWrapper<ImFriendShipRequestEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+
+        // 审批发给我的好友申请，req中的fromId是我
+        query.eq(DBColumn.TO_ID, req.getFromId());
+
+        ImFriendShipRequestEntity update = new ImFriendShipRequestEntity();
+        update.setReadStatus(RequestFriendReadStatusEnum.READ.getCode());
+        imFriendShipRequestMapper.update(update, query);
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<Object> getFriendShipRequest(ReadFriendShipRequestReq req) {
+        QueryWrapper<ImFriendShipRequestEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+
+        // 审批发给我的好友申请，req中的fromId是我
+        query.eq(DBColumn.TO_ID, req.getFromId());
+
+        List<ImFriendShipRequestEntity> requestList = imFriendShipRequestMapper.selectList(query);
+
+        return ResponseVO.successResponse(requestList);
     }
 }

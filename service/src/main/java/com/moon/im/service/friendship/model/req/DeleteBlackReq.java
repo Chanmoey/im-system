@@ -1,7 +1,7 @@
 package com.moon.im.service.friendship.model.req;
 
 
-import com.lld.im.common.model.RequestBase;
+import com.moon.im.common.model.RequestBase;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
