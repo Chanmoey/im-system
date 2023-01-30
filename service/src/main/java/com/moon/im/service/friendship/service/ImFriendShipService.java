@@ -2,9 +2,10 @@ package com.moon.im.service.friendship.service;
 
 import com.moon.im.common.ResponseVO;
 import com.moon.im.service.friendship.model.req.*;
-import com.moon.im.service.friendship.model.resp.AddFriendResp;
+import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
-import com.moon.im.service.friendship.model.resp.UpdateFriendResp;
+
+import java.util.List;
 
 /**
  * @author Chanmoey
@@ -14,9 +15,9 @@ public interface ImFriendShipService {
 
     ResponseVO<ImportFriendShipResp> importFriendShip(ImportFriendShipReq req);
 
-    ResponseVO<AddFriendResp> addFriend(AddFriendReq req);
+    ResponseVO<Object> addFriend(AddFriendReq req);
 
-    ResponseVO<UpdateFriendResp> updateFriend(UpdateFriendReq req);
+    ResponseVO<Object> updateFriend(UpdateFriendReq req);
 
     ResponseVO<Object> deleteFriend(DeleteFriendReq req);
 
@@ -25,4 +26,6 @@ public interface ImFriendShipService {
     ResponseVO<Object> getAllFriendShip(GetAllFriendShipReq req);
 
     ResponseVO<Object> getRelation(GetRelationReq req);
+
+    ResponseVO<List<CheckFriendShipResp>> checkFriendship(CheckFriendShipReq req);
 }

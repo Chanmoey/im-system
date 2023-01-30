@@ -2,13 +2,14 @@ package com.moon.im.service.friendship.controller.v1;
 
 import com.moon.im.common.ResponseVO;
 import com.moon.im.service.friendship.model.req.*;
-import com.moon.im.service.friendship.model.resp.AddFriendResp;
+import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
-import com.moon.im.service.friendship.model.resp.UpdateFriendResp;
 import com.moon.im.service.friendship.service.ImFriendShipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Chanmoey
@@ -27,12 +28,12 @@ public class ImFriendShipController {
     }
 
     @PostMapping("/addFriend")
-    public ResponseVO<AddFriendResp> addFriend(@RequestBody @Validated AddFriendReq req) {
+    public ResponseVO<Object> addFriend(@RequestBody @Validated AddFriendReq req) {
         return friendService.addFriend(req);
     }
 
     @PostMapping("/updateFriend")
-    public ResponseVO<UpdateFriendResp> addFriend(@RequestBody @Validated UpdateFriendReq req) {
+    public ResponseVO<Object> addFriend(@RequestBody @Validated UpdateFriendReq req) {
         return friendService.updateFriend(req);
     }
 
@@ -49,5 +50,10 @@ public class ImFriendShipController {
     @GetMapping("/getRelation")
     public ResponseVO<Object> getRelation(@RequestBody @Validated GetRelationReq req) {
         return friendService.getRelation(req);
+    }
+
+    @PostMapping("/checkFriendship")
+    public ResponseVO<List<CheckFriendShipResp>> checkFriendship(@RequestBody @Validated CheckFriendShipReq req) {
+        return friendService.checkFriendship(req);
     }
 }

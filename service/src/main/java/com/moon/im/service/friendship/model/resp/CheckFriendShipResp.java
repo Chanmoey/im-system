@@ -7,5 +7,11 @@ import lombok.Data;
  * @date 2023年01月30日
  */
 @Data
-public class UpdateFriendResp {
+public class CheckFriendShipResp {
+
+    private String fromId;
+
+    private String toId;
+
+    private Integer status;
 }

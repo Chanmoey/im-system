@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.moon.im.common.ResponseVO;
 import com.moon.im.common.constant.DBColumn;
+import com.moon.im.common.enums.CheckFriendShipTypeEnum;
 import com.moon.im.common.enums.FriendShipErrorCode;
 import com.moon.im.common.enums.FriendShipStatusEnum;
 import com.moon.im.common.enums.UserErrorCode;
@@ -11,9 +12,8 @@ import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipMapper;
 import com.moon.im.service.friendship.model.req.*;
-import com.moon.im.service.friendship.model.resp.AddFriendResp;
+import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
-import com.moon.im.service.friendship.model.resp.UpdateFriendResp;
 import com.moon.im.service.friendship.service.ImFriendShipService;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import com.moon.im.service.user.service.ImUserService;
@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Chanmoey
@@ -73,14 +76,14 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
     }
 
     @Override
-    public ResponseVO<AddFriendResp> addFriend(AddFriendReq req) {
+    public ResponseVO<Object> addFriend(AddFriendReq req) {
 
         checkUserIsExit(req.getFromId(), req.getAppId());
         checkUserIsExit(req.getToItem().getToId(), req.getAppId());
         return doAddFriend(req.getFromId(), req.getToItem(), req.getAppId());
     }
 
-    private ResponseVO<AddFriendResp> doAddFriend(String fromId, FriendDto dto, Integer appId) {
+    private ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId) {
         // A添加B为好友
         // Friend表插入AB和BA两条记录
         // 查询是否有记录存在，如果存在则判断状态，如果是已添加、则提示已添加，如果为添加，则修改状态
@@ -134,13 +137,13 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
     }
 
     @Override
-    public ResponseVO<UpdateFriendResp> updateFriend(UpdateFriendReq req) {
+    public ResponseVO<Object> updateFriend(UpdateFriendReq req) {
         checkUserIsExit(req.getFromId(), req.getAppId());
         checkUserIsExit(req.getToItem().getToId(), req.getAppId());
         return doUpdate(req.getFromId(), req.getToItem(), req.getAppId());
     }
 
-    private ResponseVO<UpdateFriendResp> doUpdate(String fromId, FriendDto dto, Integer appId) {
+    private ResponseVO<Object> doUpdate(String fromId, FriendDto dto, Integer appId) {
         UpdateWrapper<ImFriendShipEntity> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda().set(ImFriendShipEntity::getAddSource, dto.getAddSource())
                 .set(ImFriendShipEntity::getExtra, dto.getExtra())
@@ -223,4 +226,32 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         return ResponseVO.successResponse(entity);
     }
 
+    @Override
+    public ResponseVO<List<CheckFriendShipResp>> checkFriendship(CheckFriendShipReq req) {
+
+        Map<String, Integer> result = req.getToIds().stream()
+                .collect(Collectors.toMap(Function.identity(), s -> 0));
+
+        List<CheckFriendShipResp> resp;
+        if (req.getCheckType() == CheckFriendShipTypeEnum.SINGLE.getType()) {
+            resp = imFriendShipMapper.checkFriendShip(req);
+        } else {
+            resp = imFriendShipMapper.checkFriendShipBoth(req);
+        }
+
+        Map<String, Integer> collect = resp.stream()
+                .collect(Collectors.toMap(CheckFriendShipResp::getToId, CheckFriendShipResp::getStatus));
+
+        for (Map.Entry<String, Integer> entry : result.entrySet()) {
+            if (!collect.containsKey(entry.getKey())) {
+                CheckFriendShipResp noFriend = new CheckFriendShipResp();
+                noFriend.setFromId(req.getFromId());
+                noFriend.setToId(entry.getKey());
+                noFriend.setStatus(entry.getValue());
+                resp.add(noFriend);
+            }
+        }
+
+        return ResponseVO.successResponse(resp);
+    }
 }
