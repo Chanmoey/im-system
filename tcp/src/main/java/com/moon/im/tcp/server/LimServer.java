@@ -2,6 +2,8 @@ package com.moon.im.tcp.server;
 
 
 import com.moon.im.codec.config.BootstrapConfig;
+import com.moon.im.codec.decoder.MessageDecoder;
+import com.moon.im.tcp.handler.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -48,7 +50,8 @@ public class LimServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-
+                        ch.pipeline().addLast(new MessageDecoder());
+                        ch.pipeline().addLast(new NettyServerHandler());
                     }
                 });
     }
