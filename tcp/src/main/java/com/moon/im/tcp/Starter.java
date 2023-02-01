@@ -1,6 +1,7 @@
 package com.moon.im.tcp;
 
 import com.moon.im.codec.config.BootstrapConfig;
+import com.moon.im.tcp.redis.RedisManager;
 import com.moon.im.tcp.server.LimServer;
 import com.moon.im.tcp.server.LimWebSocketServer;
 import org.yaml.snakeyaml.Yaml;
@@ -28,6 +29,8 @@ public class Starter {
             bootstrapConfig = yaml.loadAs(in, BootstrapConfig.class);
             new LimServer(bootstrapConfig.getLim()).start();
             new LimWebSocketServer(bootstrapConfig.getLim()).start();
+
+            RedisManager.init(bootstrapConfig);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(500);
