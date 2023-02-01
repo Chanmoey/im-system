@@ -21,4 +21,9 @@ public class DBColumn {
     public static final String TO_ID = "to_id";
 
     public static final String FS_STATUS = "status";
+
+    /**
+     * group
+     */
+    public static final String GROUP_ID = "group_id";
 }

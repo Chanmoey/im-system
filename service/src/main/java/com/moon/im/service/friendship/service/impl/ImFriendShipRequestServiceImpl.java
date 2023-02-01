@@ -13,7 +13,6 @@ import com.moon.im.service.friendship.model.req.ApproveFriendRequestReq;
 import com.moon.im.service.friendship.model.req.FriendDto;
 import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
 import com.moon.im.service.friendship.service.ImFriendShipRequestService;
-import com.moon.im.service.friendship.service.ImFriendShipService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +30,8 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     @Autowired
     private ImFriendShipRequestMapper imFriendShipRequestMapper;
 
-    @Autowired
-    private ImFriendShipService imFriendShipService;
+//    @Autowired
+//    private ImFriendShipService imFriendShipService;
 
     @Override
     public ResponseVO<Object> addFriendshipRequest(String fromId, FriendDto dto, Integer appId) {
@@ -114,17 +113,17 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
 
         if (ApproverFriendRequestStatusEnum.AGREE.getCode() == req.getStatus()) {
             //同意 ===> 去执行添加好友逻辑
-            FriendDto dto = new FriendDto();
-            dto.setAddSource(imFriendShipRequestEntity.getAddSource());
-            dto.setAddWording(imFriendShipRequestEntity.getAddWording());
-            dto.setRemark(imFriendShipRequestEntity.getRemark());
-            dto.setToId(imFriendShipRequestEntity.getToId());
-            ResponseVO<Object> responseVO = imFriendShipService
-                    .doAddFriend(imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
-
-            if (!responseVO.isOk() && responseVO.getCode() != FriendShipErrorCode.TO_IS_YOUR_FRIEND.getCode()) {
-                return responseVO;
-            }
+//            FriendDto dto = new FriendDto();
+//            dto.setAddSource(imFriendShipRequestEntity.getAddSource());
+//            dto.setAddWording(imFriendShipRequestEntity.getAddWording());
+//            dto.setRemark(imFriendShipRequestEntity.getRemark());
+//            dto.setToId(imFriendShipRequestEntity.getToId());
+//            ResponseVO<Object> responseVO = imFriendShipService
+//                    .doAddFriend(imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
+//
+//            if (!responseVO.isOk() && responseVO.getCode() != FriendShipErrorCode.TO_IS_YOUR_FRIEND.getCode()) {
+//                return responseVO;
+//            }
         }
 
         return ResponseVO.successResponse();
