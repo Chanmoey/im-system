@@ -1,5 +1,6 @@
 package com.moon.im.codec.decoder;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.moon.im.codec.proto.Message;
 import com.moon.im.codec.proto.MessageHeader;
@@ -68,8 +69,8 @@ public class MessageDecoder extends ByteToMessageDecoder {
         Message message = new Message();
         message.setMessageHeader(header);
         if (messageType == 0x0) {
-            String body = new String(imeiData);
-            JSONObject parse = (JSONObject) JSONObject.parse(body);
+            String body = new String(bodyData);
+            JSONObject parse = (JSONObject) JSON.parse(body);
             message.setMessagePack(parse);
         }
         out.add(message);

@@ -11,4 +11,6 @@ public class Constants {
     public static final String APP_ID = "appId";
 
     public static final String CLIENT_TYPE = "clientType";
+
+    public static final String READ_TIME = "readTime";
 }
