@@ -13,4 +13,10 @@ public class Constants {
     public static final String CLIENT_TYPE = "clientType";
 
     public static final String READ_TIME = "readTime";
+
+    public static final String IM_CORE_ZK_ROOT = "/im-coreRoot";
+
+    public static final String IM_CORE_ZK_ROOT_TCP = "/tcp";
+
+    public static final String IM_CORE_ZK_ROOT_WEB = "/web";
 }

@@ -23,12 +23,12 @@ lim:
     single: #redis单机配置
       address: 192.168.40.30:6379
   rabbitmq:
-    host: 127.0.0.1
+    host: 192.168.40.30
     port: 5672
     virtualHost: /
     userName: guest
     password: guest
 
   zkConfig:
-    zkAddr: 127.0.0.1:2181
+    zkAddr: 192.168.40.30:2181
     zkConnectTimeOut: 5000

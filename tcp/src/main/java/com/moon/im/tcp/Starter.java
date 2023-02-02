@@ -1,6 +1,8 @@
 package com.moon.im.tcp;
 
 import com.moon.im.codec.config.BootstrapConfig;
+import com.moon.im.tcp.mq.RabbitMqFactory;
+import com.moon.im.tcp.mq.receiver.RabbitMqMessageReceiver;
 import com.moon.im.tcp.redis.RedisManager;
 import com.moon.im.tcp.server.LimServer;
 import com.moon.im.tcp.server.LimWebSocketServer;
@@ -31,6 +33,9 @@ public class Starter {
             new LimWebSocketServer(bootstrapConfig.getLim()).start();
 
             RedisManager.init(bootstrapConfig);
+
+            RabbitMqFactory.init(bootstrapConfig.getLim().getRabbitmq());
+            RabbitMqMessageReceiver.init();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(500);
