@@ -7,6 +7,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -17,15 +18,20 @@ import java.io.IOException;
 @Slf4j
 public class RabbitMqMessageReceiver {
 
+    private RabbitMqMessageReceiver() {
+    }
+
+    private static String brokerId;
+
     private static void startReceiverMessage() {
         try {
-            Channel channel = RabbitMqFactory.getChannel(RabbitConstants.MESSAGE_SERVICE_2_IM);
-            channel.queueDeclare(RabbitConstants.MESSAGE_SERVICE_2_IM,
+            Channel channel = RabbitMqFactory.getChannel(RabbitConstants.MESSAGE_SERVICE_2_IM + brokerId);
+            channel.queueDeclare(RabbitConstants.MESSAGE_SERVICE_2_IM + brokerId,
                     true, false, false, null);
-            channel.queueBind(RabbitConstants.MESSAGE_SERVICE_2_IM,
-                    RabbitConstants.MESSAGE_SERVICE_2_IM, "");
+            channel.queueBind(RabbitConstants.MESSAGE_SERVICE_2_IM + brokerId,
+                    RabbitConstants.MESSAGE_SERVICE_2_IM, brokerId);
 
-            channel.basicConsume(RabbitConstants.MESSAGE_SERVICE_2_IM, false,
+            channel.basicConsume(RabbitConstants.MESSAGE_SERVICE_2_IM + brokerId, false,
                     new DefaultConsumer(channel) {
                         @Override
                         public void handleDelivery(String consumerTag,
@@ -44,6 +50,13 @@ public class RabbitMqMessageReceiver {
     }
 
     public static void init() {
+        startReceiverMessage();
+    }
+
+    public static void init(String brokerId) {
+        if (StringUtils.isBlank(RabbitMqMessageReceiver.brokerId)) {
+            RabbitMqMessageReceiver.brokerId = brokerId;
+        }
         startReceiverMessage();
     }
 }

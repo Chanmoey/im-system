@@ -27,4 +27,14 @@ public class UserSession {
      * 连接状态 1在线、2离线
      */
     private Integer connectStatus;
+
+    /**
+     * 用户的登录Channel保存在哪个Netty服务器上
+     */
+    private Integer brokerId;
+    /**
+     * 用户的登录Channel保存在哪个Netty服务器上
+     */
+    private String brokerHost;
+
 }

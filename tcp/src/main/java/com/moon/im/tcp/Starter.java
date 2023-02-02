@@ -40,7 +40,7 @@ public class Starter {
             RedisManager.init(bootstrapConfig);
 
             RabbitMqFactory.init(bootstrapConfig.getLim().getRabbitmq());
-            RabbitMqMessageReceiver.init();
+            RabbitMqMessageReceiver.init(bootstrapConfig.getLim().getBrokerId().toString());
 
             registerZK(bootstrapConfig);
         } catch (Exception e) {

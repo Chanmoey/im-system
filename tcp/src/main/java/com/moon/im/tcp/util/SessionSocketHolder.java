@@ -13,7 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,29 +25,35 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SessionSocketHolder {
 
+    private SessionSocketHolder() {
+    }
+
     private static final Map<UserClientDto, NioSocketChannel> CHANNELS = new ConcurrentHashMap<>();
 
-    public static void put(Integer appId, String userId, Integer clientType, NioSocketChannel channel) {
+    public static void put(Integer appId, String userId, Integer clientType, String imei, NioSocketChannel channel) {
         UserClientDto dto = new UserClientDto();
         dto.setAppId(appId);
         dto.setUserId(userId);
         dto.setClientType(clientType);
+        dto.setImei(imei);
         CHANNELS.put(dto, channel);
     }
 
-    public static NioSocketChannel get(Integer appId, String userId, Integer clientType) {
+    public static NioSocketChannel get(Integer appId, String userId, Integer clientType, String imei) {
         UserClientDto dto = new UserClientDto();
         dto.setAppId(appId);
         dto.setUserId(userId);
         dto.setClientType(clientType);
+        dto.setImei(imei);
         return CHANNELS.get(dto);
     }
 
-    public static void remove(Integer appId, String userId, Integer clientType) {
+    public static void remove(Integer appId, String userId, Integer clientType, String imei) {
         UserClientDto dto = new UserClientDto();
         dto.setAppId(appId);
         dto.setUserId(userId);
         dto.setClientType(clientType);
+        dto.setImei(imei);
         CHANNELS.remove(dto);
     }
 
@@ -61,7 +70,7 @@ public class SessionSocketHolder {
 
         RedissonClient redissonClient = RedisManager.getRedissonClient();
         RMap<String, String> map = redissonClient.getMap(dto.getAppId() + RedisConstants.USER_SESSION + dto.getUserId());
-        map.remove(dto.getClientType().toString());
+        map.remove(dto.getClientType() + ":" + dto.getImei());
         channel.close();
     }
 
@@ -75,21 +84,38 @@ public class SessionSocketHolder {
         if (StringUtils.isNotBlank(sessionStr)) {
             UserSession userSession = JSON.parseObject(sessionStr, UserSession.class);
             userSession.setConnectStatus(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
-            map.put(dto.getClientType().toString(), JSON.toJSONString(userSession));
+            map.put(dto.getClientType() + ":" + dto.getImei(), JSON.toJSONString(userSession));
         }
         channel.close();
     }
 
-    public static UserClientDto removeByChannelAndReturnUserClientDto(NioSocketChannel channel) {
+    private static UserClientDto removeByChannelAndReturnUserClientDto(NioSocketChannel channel) {
         Integer appId = (Integer) channel.attr(AttributeKey.valueOf(Constants.APP_ID)).get();
         String userId = (String) channel.attr(AttributeKey.valueOf(Constants.USER_ID)).get();
         Integer clientType = (Integer) channel.attr(AttributeKey.valueOf(Constants.CLIENT_TYPE)).get();
+        String imei = (String) channel.attr(AttributeKey.valueOf(Constants.IMEI)).get();
         UserClientDto userClientDto = new UserClientDto();
         userClientDto.setAppId(appId);
         userClientDto.setUserId(userId);
         userClientDto.setClientType(clientType);
-
-        SessionSocketHolder.remove(appId, userId, clientType);
+        userClientDto.setImei(imei);
+        SessionSocketHolder.remove(appId, userId, clientType, imei);
         return userClientDto;
+    }
+
+    /**
+     * 获取用户的所有Channel
+     */
+    public static List<NioSocketChannel> getUserAllChannel(Integer appId, String userId) {
+        Set<UserClientDto> users = CHANNELS.keySet();
+        List<NioSocketChannel> channels = new ArrayList<>();
+
+        users.forEach(user -> {
+            if (user.getAppId().equals(appId) && user.getUserId().equals(userId)) {
+                channels.add(CHANNELS.get(user));
+            }
+        });
+
+        return channels;
     }
 }

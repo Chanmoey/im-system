@@ -6,6 +6,9 @@ package com.moon.im.common.constant;
  */
 public class Constants {
 
+    /**
+     * 登录属性常量
+     */
     public static final String USER_ID = "userId";
 
     public static final String APP_ID = "appId";
@@ -14,6 +17,11 @@ public class Constants {
 
     public static final String READ_TIME = "readTime";
 
+    public static final String IMEI = "imei";
+
+    /**
+     * ZK的Node常量
+     */
     public static final String IM_CORE_ZK_ROOT = "/im-coreRoot";
 
     public static final String IM_CORE_ZK_ROOT_TCP = "/tcp";

@@ -16,4 +16,6 @@ public class UserClientDto {
     private Integer clientType;
 
     private String userId;
+
+    private String imei;
 }

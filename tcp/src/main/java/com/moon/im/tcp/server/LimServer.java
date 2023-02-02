@@ -3,6 +3,7 @@ package com.moon.im.tcp.server;
 
 import com.moon.im.codec.config.BootstrapConfig;
 import com.moon.im.codec.decoder.MessageDecoder;
+import com.moon.im.codec.encoder.MessageEncoder;
 import com.moon.im.tcp.handler.HearBeatHandler;
 import com.moon.im.tcp.handler.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -54,9 +55,11 @@ public class LimServer {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         // 解码器
                         ch.pipeline().addLast(new MessageDecoder());
-                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
-                        ch.pipeline().addLast(new HearBeatHandler(config.getHeartBeatTime()));
-                        ch.pipeline().addLast(new NettyServerHandler());
+                        ch.pipeline().addLast(new MessageEncoder());
+//                        ch.pipeline().addLast(new IdleStateHandler(0, 0, 1));
+//                        ch.pipeline().addLast(new HearBeatHandler(config.getHeartBeatTime()));
+                        ch.pipeline().addLast(new NettyServerHandler(config.getBrokerId()));
+
                     }
                 });
     }
