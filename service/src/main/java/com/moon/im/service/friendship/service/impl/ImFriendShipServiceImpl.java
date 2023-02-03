@@ -253,6 +253,17 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
     }
 
     @Override
+    public ImFriendShipEntity getRelation(String fromId, String toId, Integer appId) {
+
+        GetRelationReq req = new GetRelationReq();
+        req.setFromId(fromId);
+        req.setToId(toId);
+        req.setAppId(appId);
+
+        return getRelation(req);
+    }
+
+    @Override
     public List<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req) {
 
         Map<String, Integer> result = req.getToIds().stream()

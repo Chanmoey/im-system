@@ -30,7 +30,10 @@ public interface ImFriendShipService {
 
     ImFriendShipEntity getRelation(GetRelationReq req);
 
+    ImFriendShipEntity getRelation(String fromId, String toId, Integer appId);
+
     List<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req);
+
 
     void addBlack(AddFriendShipBlackReq req);
 

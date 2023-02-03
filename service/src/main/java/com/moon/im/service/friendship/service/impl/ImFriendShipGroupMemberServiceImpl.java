@@ -3,7 +3,9 @@ package com.moon.im.service.friendship.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.FriendShipErrorCode;
+import com.moon.im.common.enums.FriendShipStatusEnum;
 import com.moon.im.common.exception.ApplicationException;
+import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.dao.ImFriendShipGroupEntity;
 import com.moon.im.service.friendship.dao.ImFriendShipGroupMemberEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipGroupMemberMapper;
@@ -12,9 +14,9 @@ import com.moon.im.service.friendship.model.req.DeleteFriendShipGroupMemberReq;
 import com.moon.im.service.friendship.model.resp.AddFriendShipGroupMemberResp;
 import com.moon.im.service.friendship.service.ImFriendShipGroupMemberService;
 import com.moon.im.service.friendship.service.ImFriendShipGroupService;
+import com.moon.im.service.friendship.service.ImFriendShipService;
 import com.moon.im.service.user.service.ImUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.keyvalue.repository.KeyValueRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,10 @@ public class ImFriendShipGroupMemberServiceImpl implements ImFriendShipGroupMemb
     private ImFriendShipGroupService imFriendShipGroupService;
 
     @Autowired
-    ImUserService imUserService;
+    private ImUserService imUserService;
+
+    @Autowired
+    private ImFriendShipService imFriendShipService;
 
     @Autowired
     ImFriendShipGroupMemberService thisService;
@@ -50,8 +55,13 @@ public class ImFriendShipGroupMemberServiceImpl implements ImFriendShipGroupMemb
         List<String> successId = new ArrayList<>();
         List<String> errorId = new ArrayList<>();
         for (String toId : req.getToIds()) {
-            imUserService.getSingleUserInfo(toId, req.getAppId());
             try {
+                // 只有是好友才能添加
+                ImFriendShipEntity relation = imFriendShipService.getRelation(req.getFromId(), toId, req.getAppId());
+                if (FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode() != relation.getStatus()) {
+                    errorId.add(toId);
+                    continue;
+                }
                 int i = thisService.doAddGroupMember(group.getGroupId(), toId);
                 if (i == 1) {
                     successId.add(toId);

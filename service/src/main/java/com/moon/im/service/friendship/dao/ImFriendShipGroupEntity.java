@@ -9,7 +9,7 @@ import lombok.Data;
 @TableName("im_friendship_group")
 public class ImFriendShipGroupEntity {
 
-    @TableId(value = "group_id",type = IdType.AUTO)
+    @TableId(value = "group_id",type = IdType.ASSIGN_ID)
     private Long groupId;
 
     private String fromId;
