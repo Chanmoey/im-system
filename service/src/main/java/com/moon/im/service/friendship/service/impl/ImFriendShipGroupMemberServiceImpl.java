@@ -15,7 +15,6 @@ import com.moon.im.service.friendship.model.resp.AddFriendShipGroupMemberResp;
 import com.moon.im.service.friendship.service.ImFriendShipGroupMemberService;
 import com.moon.im.service.friendship.service.ImFriendShipGroupService;
 import com.moon.im.service.friendship.service.ImFriendShipService;
-import com.moon.im.service.user.service.ImUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
