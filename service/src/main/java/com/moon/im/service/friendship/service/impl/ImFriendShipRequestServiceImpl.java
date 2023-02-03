@@ -1,7 +1,6 @@
 package com.moon.im.service.friendship.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.moon.im.common.ResponseVO;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.ApproverFriendRequestStatusEnum;
 import com.moon.im.common.enums.FriendShipErrorCode;
