@@ -33,8 +33,6 @@ public class ImFriendShipGroupMemberServiceImpl implements ImFriendShipGroupMemb
     @Autowired
     private ImFriendShipGroupService imFriendShipGroupService;
 
-    @Autowired
-    private ImUserService imUserService;
 
     @Autowired
     private ImFriendShipService imFriendShipService;
