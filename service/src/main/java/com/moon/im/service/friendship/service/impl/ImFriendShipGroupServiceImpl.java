@@ -1,10 +1,11 @@
 package com.moon.im.service.friendship.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.moon.im.common.ResponseVO;
+import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.DelFlagEnum;
 import com.moon.im.common.enums.FriendShipErrorCode;
+import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipGroupEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipGroupMapper;
 import com.moon.im.service.friendship.model.req.AddFriendShipGroupMemberReq;
@@ -32,18 +33,18 @@ public class ImFriendShipGroupServiceImpl implements ImFriendShipGroupService {
 
     @Override
     @Transactional
-    public ResponseVO addGroup(AddFriendShipGroupReq req) {
+    public void addGroup(AddFriendShipGroupReq req) {
 
         QueryWrapper<ImFriendShipGroupEntity> query = new QueryWrapper<>();
-        query.eq("group_name", req.getGroupName());
-        query.eq("app_id", req.getAppId());
-        query.eq("from_id", req.getFromId());
-        query.eq("del_flag", DelFlagEnum.NORMAL.getCode());
+        query.eq(DBColumn.GROUP_NAME, req.getGroupName());
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.FROM_ID, req.getFromId());
+        query.eq(DBColumn.DEL_FLAG, DelFlagEnum.NORMAL.getCode());
 
         ImFriendShipGroupEntity entity = imFriendShipGroupMapper.selectOne(query);
 
         if (entity != null) {
-            return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_EXIST);
+            throw new ApplicationException(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_EXIST);
         }
 
         //写入db
@@ -57,35 +58,33 @@ public class ImFriendShipGroupServiceImpl implements ImFriendShipGroupService {
             int insert1 = imFriendShipGroupMapper.insert(insert);
 
             if (insert1 != 1) {
-                return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_SHIP_GROUP_CREATE_ERROR);
+                throw new ApplicationException(FriendShipErrorCode.FRIEND_SHIP_GROUP_CREATE_ERROR);
             }
 
-            if (insert1 == 1 && CollectionUtil.isNotEmpty(req.getToIds())) {
+            if (CollUtil.isNotEmpty(req.getToIds())) {
                 AddFriendShipGroupMemberReq addFriendShipGroupMemberReq = new AddFriendShipGroupMemberReq();
                 addFriendShipGroupMemberReq.setFromId(req.getFromId());
                 addFriendShipGroupMemberReq.setGroupName(req.getGroupName());
                 addFriendShipGroupMemberReq.setToIds(req.getToIds());
                 addFriendShipGroupMemberReq.setAppId(req.getAppId());
                 imFriendShipGroupMemberService.addGroupMember(addFriendShipGroupMemberReq);
-                return ResponseVO.successResponse();
             }
         } catch (DuplicateKeyException e) {
             e.getStackTrace();
-            return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_EXIST);
+            throw new ApplicationException(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_EXIST);
         }
-        return ResponseVO.successResponse();
     }
 
     @Override
     @Transactional
-    public ResponseVO deleteGroup(DeleteFriendShipGroupReq req) {
+    public void deleteGroup(DeleteFriendShipGroupReq req) {
 
         for (String groupName : req.getGroupName()) {
             QueryWrapper<ImFriendShipGroupEntity> query = new QueryWrapper<>();
-            query.eq("group_name", groupName);
-            query.eq("app_id", req.getAppId());
-            query.eq("from_id", req.getFromId());
-            query.eq("del_flag", DelFlagEnum.NORMAL.getCode());
+            query.eq(DBColumn.GROUP_NAME, groupName);
+            query.eq(DBColumn.APP_ID, req.getAppId());
+            query.eq(DBColumn.FROM_ID, req.getFromId());
+            query.eq(DBColumn.DEL_FLAG, DelFlagEnum.NORMAL.getCode());
 
             ImFriendShipGroupEntity entity = imFriendShipGroupMapper.selectOne(query);
 
@@ -98,22 +97,20 @@ public class ImFriendShipGroupServiceImpl implements ImFriendShipGroupService {
 
             }
         }
-        return ResponseVO.successResponse();
     }
 
     @Override
-    public ResponseVO getGroup(String fromId, String groupName, Integer appId) {
+    public ImFriendShipGroupEntity getGroup(String fromId, String groupName, Integer appId) {
         QueryWrapper<ImFriendShipGroupEntity> query = new QueryWrapper<>();
-        query.eq("group_name", groupName);
-        query.eq("app_id", appId);
-        query.eq("from_id", fromId);
-        query.eq("del_flag", DelFlagEnum.NORMAL.getCode());
+        query.eq(DBColumn.GROUP_NAME, groupName);
+        query.eq(DBColumn.APP_ID, appId);
+        query.eq(DBColumn.FROM_ID, fromId);
+        query.eq(DBColumn.DEL_FLAG, DelFlagEnum.NORMAL.getCode());
 
         ImFriendShipGroupEntity entity = imFriendShipGroupMapper.selectOne(query);
         if (entity == null) {
-            return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_NOT_EXIST);
+            throw new ApplicationException(FriendShipErrorCode.FRIEND_SHIP_GROUP_IS_NOT_EXIST);
         }
-        return ResponseVO.successResponse(entity);
+        return entity;
     }
-
 }

@@ -6,6 +6,9 @@ package com.moon.im.common.constant;
  */
 public class DBColumn {
 
+    private DBColumn() {
+    }
+
     public static final String APP_ID = "app_id";
 
     /**
@@ -28,4 +31,6 @@ public class DBColumn {
      * group
      */
     public static final String GROUP_ID = "group_id";
+
+    public static final String GROUP_NAME = "group_name";
 }
