@@ -6,6 +6,7 @@ import com.moon.im.service.user.model.req.DeleteUserReq;
 import com.moon.im.service.user.model.req.GetUserInfoReq;
 import com.moon.im.service.user.model.req.GetUserSequenceReq;
 import com.moon.im.service.user.model.req.ImportUserReq;
+import com.moon.im.service.user.model.resp.DeleteUserResp;
 import com.moon.im.service.user.model.resp.GetUserInfoResp;
 import com.moon.im.service.user.model.resp.ImportUserResp;
 import com.moon.im.service.user.service.ImUserService;
@@ -25,21 +26,16 @@ public class ImUserController {
 
     @PostMapping("/importUser")
     public ResponseVO<ImportUserResp> importUser(@RequestBody ImportUserReq req) {
-        return imUserService.importUser(req);
+        return ResponseVO.successResponse(imUserService.importUser(req));
     }
 
     @RequestMapping("/getUserInfo")
     public ResponseVO<GetUserInfoResp> getUserInfo(@RequestBody GetUserInfoReq req) {//@Validated
-        return imUserService.getUserInfo(req);
+        return ResponseVO.successResponse(imUserService.getUserInfo(req));
     }
 
     @PostMapping("/deleteUser")
-    public ResponseVO<Object> deleteUser(@RequestBody @Validated DeleteUserReq req) {
-        return imUserService.deleteUser(req);
-    }
-
-    @GetMapping("/getUserSequence")
-    public ResponseVO<Object> getUserSequence(@RequestBody @Validated GetUserSequenceReq req) {
-        return imUserService.getUserSequence(req);
+    public ResponseVO<DeleteUserResp> deleteUser(@RequestBody @Validated DeleteUserReq req) {
+        return ResponseVO.successResponse(imUserService.deleteUser(req));
     }
 }
