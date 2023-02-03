@@ -1,9 +1,11 @@
 package com.moon.im.service.friendship.service;
 
-import com.moon.im.common.ResponseVO;
+import com.moon.im.service.friendship.dao.ImFriendShipRequestEntity;
 import com.moon.im.service.friendship.model.req.ApproveFriendRequestReq;
 import com.moon.im.service.friendship.model.req.FriendDto;
 import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
+
+import java.util.List;
 
 /**
  * @author Chanmoey
@@ -11,11 +13,11 @@ import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
  */
 public interface ImFriendShipRequestService {
 
-    ResponseVO<Object> addFriendshipRequest(String fromId, FriendDto dto, Integer appId);
+    void addFriendshipRequest(String fromId, FriendDto dto, Integer appId);
 
-    ResponseVO<Object> approveFriendshipRequest(ApproveFriendRequestReq req);
+    void approveFriendshipRequest(ApproveFriendRequestReq req);
 
-    ResponseVO<Object> readFriendShipRequest(ReadFriendShipRequestReq req);
+    void readFriendShipRequest(ReadFriendShipRequestReq req);
 
-    ResponseVO<Object> getFriendShipRequest(ReadFriendShipRequestReq req);
+    List<ImFriendShipRequestEntity> getFriendShipRequest(ReadFriendShipRequestReq req);
 }

@@ -41,19 +41,17 @@ public class ImFriendShipGroupMemberServiceImpl
     public ResponseVO addGroupMember(AddFriendShipGroupMemberReq req) {
 
         ResponseVO<ImFriendShipGroupEntity> group = imFriendShipGroupService
-                .getGroup(req.getFromId(),req.getGroupName(),req.getAppId());
-        if(!group.isOk()){
+                .getGroup(req.getFromId(), req.getGroupName(), req.getAppId());
+        if (!group.isOk()) {
             return group;
         }
 
         List<String> successId = new ArrayList<>();
         for (String toId : req.getToIds()) {
-            ResponseVO<ImUserDataEntity> singleUserInfo = imUserService.getSingleUserInfo(toId, req.getAppId());
-            if(singleUserInfo.isOk()){
-                int i = thisService.doAddGroupMember(group.getData().getGroupId(), toId);
-                if(i == 1){
-                    successId.add(toId);
-                }
+            imUserService.getSingleUserInfo(toId, req.getAppId());
+            int i = thisService.doAddGroupMember(group.getData().getGroupId(), toId);
+            if (i == 1) {
+                successId.add(toId);
             }
         }
 
@@ -63,16 +61,16 @@ public class ImFriendShipGroupMemberServiceImpl
     @Override
     public ResponseVO delGroupMember(DeleteFriendShipGroupMemberReq req) {
         ResponseVO<ImFriendShipGroupEntity> group = imFriendShipGroupService
-                .getGroup(req.getFromId(),req.getGroupName(),req.getAppId());
-        if(!group.isOk()){
+                .getGroup(req.getFromId(), req.getGroupName(), req.getAppId());
+        if (!group.isOk()) {
             return group;
         }
 
         for (String toId : req.getToIds()) {
-            ResponseVO<ImUserDataEntity> singleUserInfo = imUserService.getSingleUserInfo(toId, req.getAppId());
-            if(singleUserInfo.isOk()){
-                int i = deleteGroupMember(group.getData().getGroupId(), req.getToIds());
-            }
+            ImUserDataEntity singleUserInfo = imUserService.getSingleUserInfo(toId, req.getAppId());
+
+            int i = deleteGroupMember(group.getData().getGroupId(), req.getToIds());
+
         }
         return ResponseVO.successResponse();
     }
@@ -84,7 +82,7 @@ public class ImFriendShipGroupMemberServiceImpl
         imFriendShipGroupMemberEntity.setToId(toId);
         try {
             return imFriendShipGroupMemberMapper.insert(imFriendShipGroupMemberEntity);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return 0;
         }
@@ -95,12 +93,12 @@ public class ImFriendShipGroupMemberServiceImpl
      */
     public int deleteGroupMember(Long groupId, List<String> toIds) {
         QueryWrapper<ImFriendShipGroupMemberEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(DBColumn.GROUP_ID,groupId);
-        queryWrapper.in(DBColumn.TO_ID,toIds);
+        queryWrapper.eq(DBColumn.GROUP_ID, groupId);
+        queryWrapper.in(DBColumn.TO_ID, toIds);
 
         try {
             return imFriendShipGroupMemberMapper.delete(queryWrapper);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return 0;
         }
@@ -109,7 +107,7 @@ public class ImFriendShipGroupMemberServiceImpl
     @Override
     public int clearGroupMember(Long groupId) {
         QueryWrapper<ImFriendShipGroupMemberEntity> query = new QueryWrapper<>();
-        query.eq("group_id",groupId);
+        query.eq("group_id", groupId);
         return imFriendShipGroupMemberMapper.delete(query);
     }
 }

@@ -1,11 +1,14 @@
 package com.moon.im.service.friendship.controller.v1;
 
 import com.moon.im.common.ResponseVO;
-import com.moon.im.service.friendship.model.req.*;
+import com.moon.im.service.friendship.model.req.ApproveFriendRequestReq;
 import com.moon.im.service.friendship.service.ImFriendShipRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Chanmoey
@@ -20,6 +23,7 @@ public class ImFriendShipRequestController {
 
     @PostMapping("/approveFriendRequest")
     public ResponseVO<Object> approveFriendRequest(@RequestBody @Validated ApproveFriendRequestReq req) {
-        return imFriendShipRequestService.approveFriendshipRequest(req);
+        imFriendShipRequestService.approveFriendshipRequest(req);
+        return ResponseVO.successResponse();
     }
 }
