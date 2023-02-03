@@ -3,6 +3,7 @@ package com.moon.im.service.user.service;
 import com.moon.im.common.ResponseVO;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import com.moon.im.service.user.model.req.*;
+import com.moon.im.service.user.model.resp.DeleteUserResp;
 import com.moon.im.service.user.model.resp.GetUserInfoResp;
 import com.moon.im.service.user.model.resp.ImportUserResp;
 
@@ -12,17 +13,11 @@ import com.moon.im.service.user.model.resp.ImportUserResp;
  */
 public interface ImUserService {
 
-    ResponseVO<ImportUserResp> importUser(ImportUserReq req);
+    ImportUserResp importUser(ImportUserReq req);
 
-    public ResponseVO<GetUserInfoResp> getUserInfo(GetUserInfoReq req);
+    GetUserInfoResp getUserInfo(GetUserInfoReq req);
 
-    public ResponseVO<ImUserDataEntity> getSingleUserInfo(String userId , Integer appId);
+    ImUserDataEntity getSingleUserInfo(String userId, Integer appId);
 
-    public ResponseVO<Object> deleteUser(DeleteUserReq req);
-
-    public ResponseVO<Object> modifyUserInfo(ModifyUserInfoReq req);
-
-    public ResponseVO<Object> login(LoginReq req);
-
-    ResponseVO<Object> getUserSequence(GetUserSequenceReq req);
+    DeleteUserResp deleteUser(DeleteUserReq req);
 }

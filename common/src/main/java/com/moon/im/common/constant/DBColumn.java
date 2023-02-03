@@ -13,6 +13,8 @@ public class DBColumn {
      */
     public static final String USER_ID = "user_id";
 
+    public static final String DEL_FLAG = "del_flag";
+
     /**
      * friendship
      */
