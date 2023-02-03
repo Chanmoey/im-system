@@ -36,8 +36,6 @@ public class ImFriendShipGroupMemberServiceImpl implements ImFriendShipGroupMemb
 
     @Autowired
     ImFriendShipGroupMemberService thisService;
-    @Autowired
-    private KeyValueRepository keyValueRepository;
 
     @Override
     @Transactional

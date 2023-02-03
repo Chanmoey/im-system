@@ -17,7 +17,7 @@ public interface ImUserService {
 
     GetUserInfoResp getUserInfo(GetUserInfoReq req);
 
-    ImUserDataEntity getSingleUserInfo(String userId);
+    ImUserDataEntity getSingleUserInfo(String userId, Integer appId);
 
     DeleteUserResp deleteUser(DeleteUserReq req);
 }

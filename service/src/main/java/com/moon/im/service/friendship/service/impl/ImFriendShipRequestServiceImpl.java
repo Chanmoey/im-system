@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     private ImFriendShipService imFriendShipService;
 
     @Override
-    public void addFriendshipRequest(String fromId, FriendDto dto) {
+    public void addFriendshipRequest(String fromId, FriendDto dto, Integer appId) {
 
         QueryWrapper<ImFriendShipRequestEntity> query = new QueryWrapper<>();
         query.eq(DBColumn.APP_ID, appId);

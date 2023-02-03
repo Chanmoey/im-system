@@ -99,7 +99,7 @@ public class ImFriendShipGroupServiceImpl implements ImFriendShipGroupService {
     }
 
     @Override
-    public ImFriendShipGroupEntity getGroup(String fromId, String groupName) {
+    public ImFriendShipGroupEntity getGroup(String fromId, String groupName, Integer appId) {
         QueryWrapper<ImFriendShipGroupEntity> query = new QueryWrapper<>();
         query.eq(DBColumn.GROUP_NAME, groupName);
         query.eq(DBColumn.APP_ID, appId);
