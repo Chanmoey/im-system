@@ -10,6 +10,6 @@ public interface ImFriendShipGroupService {
 
     void deleteGroup(DeleteFriendShipGroupReq req);
 
-    ImFriendShipGroupEntity getGroup(String fromId, String groupName, Integer appId);
+    ImFriendShipGroupEntity getGroup(String fromId, String groupName);
 
 }

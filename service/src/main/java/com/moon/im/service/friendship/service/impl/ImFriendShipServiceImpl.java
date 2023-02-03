@@ -96,7 +96,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         }
     }
 
-    public void doAddFriend(String fromId, FriendDto dto, Integer appId) {
+    public void doAddFriend(String fromId, FriendDto dto) {
         // A添加B为好友
         // Friend表插入AB和BA两条记录
         // 查询是否有记录存在，如果存在则判断状态，如果是已添加、则提示已添加，如果为添加，则修改状态
@@ -182,7 +182,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         doUpdate(req.getFromId(), req.getToItem(), req.getAppId());
     }
 
-    private void doUpdate(String fromId, FriendDto dto, Integer appId) {
+    private void doUpdate(String fromId, FriendDto dto) {
         UpdateWrapper<ImFriendShipEntity> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda().set(ImFriendShipEntity::getAddSource, dto.getAddSource())
                 .set(ImFriendShipEntity::getExtra, dto.getExtra())
@@ -366,7 +366,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
         return result;
     }
 
-    private ImUserDataEntity checkUserIsExit(String userId, Integer appId) {
+    private ImUserDataEntity checkUserIsExit(String userId) {
         return imUserService.getSingleUserInfo(userId, appId);
     }
 }

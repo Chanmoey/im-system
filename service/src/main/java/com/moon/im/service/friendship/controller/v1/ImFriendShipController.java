@@ -47,7 +47,7 @@ public class ImFriendShipController {
     }
 
     @DeleteMapping("/deleteAllFriend")
-    public ResponseVO<Object> deleteAllFriend(@RequestBody @Validated DeleteFriendReq req, Integer appId) {
+    public ResponseVO<Object> deleteAllFriend(@RequestBody @Validated DeleteFriendReq req) {
         req.setAppId(appId);
         friendService.deleteAllFriend(req);
         return ResponseVO.successResponse();

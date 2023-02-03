@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface ImFriendShipRequestService {
 
-    void addFriendshipRequest(String fromId, FriendDto dto, Integer appId);
+    void addFriendshipRequest(String fromId, FriendDto dto);
 
     void approveFriendshipRequest(ApproveFriendRequestReq req);
 

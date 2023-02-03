@@ -18,7 +18,7 @@ public interface ImFriendShipService {
 
     void addFriend(AddFriendReq req);
 
-    void doAddFriend(String fromId, FriendDto dto, Integer appId);
+    void doAddFriend(String fromId, FriendDto dto);
 
     void updateFriend(UpdateFriendReq req);
 

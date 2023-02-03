@@ -88,7 +88,7 @@ public class ImUserServiceImpl implements ImUserService {
     }
 
     @Override
-    public ImUserDataEntity getSingleUserInfo(String userId, Integer appId) {
+    public ImUserDataEntity getSingleUserInfo(String userId) {
         QueryWrapper<ImUserDataEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(DBColumn.APP_ID, appId);
         queryWrapper.eq(DBColumn.USER_ID, userId);

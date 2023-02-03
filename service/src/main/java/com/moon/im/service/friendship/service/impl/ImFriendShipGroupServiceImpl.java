@@ -94,13 +94,12 @@ public class ImFriendShipGroupServiceImpl implements ImFriendShipGroupService {
                 update.setDelFlag(DelFlagEnum.DELETE.getCode());
                 imFriendShipGroupMapper.updateById(update);
                 imFriendShipGroupMemberService.clearGroupMember(entity.getGroupId());
-
             }
         }
     }
 
     @Override
-    public ImFriendShipGroupEntity getGroup(String fromId, String groupName, Integer appId) {
+    public ImFriendShipGroupEntity getGroup(String fromId, String groupName) {
         QueryWrapper<ImFriendShipGroupEntity> query = new QueryWrapper<>();
         query.eq(DBColumn.GROUP_NAME, groupName);
         query.eq(DBColumn.APP_ID, appId);

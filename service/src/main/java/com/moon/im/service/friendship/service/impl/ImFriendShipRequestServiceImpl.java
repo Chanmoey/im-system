@@ -36,7 +36,7 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     private ImFriendShipService imFriendShipService;
 
     @Override
-    public void addFriendshipRequest(String fromId, FriendDto dto, Integer appId) {
+    public void addFriendshipRequest(String fromId, FriendDto dto) {
 
         QueryWrapper<ImFriendShipRequestEntity> query = new QueryWrapper<>();
         query.eq(DBColumn.APP_ID, appId);
