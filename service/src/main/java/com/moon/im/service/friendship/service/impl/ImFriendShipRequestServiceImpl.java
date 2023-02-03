@@ -11,6 +11,7 @@ import com.moon.im.service.friendship.dao.ImFriendShipRequestEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipRequestMapper;
 import com.moon.im.service.friendship.model.req.ApproveFriendRequestReq;
 import com.moon.im.service.friendship.model.req.FriendDto;
+import com.moon.im.service.friendship.model.req.GetFriendShipRequestReq;
 import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
 import com.moon.im.service.friendship.service.ImFriendShipRequestService;
 import com.moon.im.service.friendship.service.ImFriendShipService;
@@ -31,6 +32,7 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     @Autowired
     private ImFriendShipRequestMapper imFriendShipRequestMapper;
 
+    // TODO 解决循环依赖
     @Autowired
     private ImFriendShipService imFriendShipService;
 
@@ -135,7 +137,7 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     }
 
     @Override
-    public List<ImFriendShipRequestEntity> getFriendShipRequest(ReadFriendShipRequestReq req) {
+    public List<ImFriendShipRequestEntity> getFriendShipRequest(GetFriendShipRequestReq req) {
         QueryWrapper<ImFriendShipRequestEntity> query = new QueryWrapper<>();
         query.eq(DBColumn.APP_ID, req.getAppId());
 
