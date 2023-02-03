@@ -39,7 +39,6 @@ public class ImFriendShipRequestController {
 
     @RequestMapping("/readFriendShipRequestReq")
     public ResponseVO<Object> readFriendShipRequestReq(@RequestBody @Validated ReadFriendShipRequestReq req) {
-        req.setAppId(appId);
         imFriendShipRequestService.readFriendShipRequest(req);
         return ResponseVO.successResponse();
     }
