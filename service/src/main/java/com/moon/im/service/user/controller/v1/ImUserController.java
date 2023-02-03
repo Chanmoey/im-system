@@ -4,7 +4,6 @@ package com.moon.im.service.user.controller.v1;
 import com.moon.im.common.ResponseVO;
 import com.moon.im.service.user.model.req.DeleteUserReq;
 import com.moon.im.service.user.model.req.GetUserInfoReq;
-import com.moon.im.service.user.model.req.GetUserSequenceReq;
 import com.moon.im.service.user.model.req.ImportUserReq;
 import com.moon.im.service.user.model.resp.DeleteUserResp;
 import com.moon.im.service.user.model.resp.GetUserInfoResp;
@@ -12,7 +11,10 @@ import com.moon.im.service.user.model.resp.ImportUserResp;
 import com.moon.im.service.user.service.ImUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Chanmoey
