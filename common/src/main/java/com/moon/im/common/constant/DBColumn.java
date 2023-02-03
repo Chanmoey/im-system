@@ -33,4 +33,10 @@ public class DBColumn {
     public static final String GROUP_ID = "group_id";
 
     public static final String GROUP_NAME = "group_name";
+
+    public static final String ROLE = "role";
+
+    public static final String MEMBER_ID = "member_id";
+
+    public static final String GROUP_TYPE = "group_type";
 }
