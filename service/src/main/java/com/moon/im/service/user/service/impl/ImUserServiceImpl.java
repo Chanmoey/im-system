@@ -98,7 +98,6 @@ public class ImUserServiceImpl implements ImUserService {
         if (imUserDataEntity == null) {
             throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
         }
-
         return imUserDataEntity;
     }
 

@@ -1,6 +1,7 @@
 package com.moon.im.service.friendship.service;
 
 import com.moon.im.common.ResponseVO;
+import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.model.req.*;
 import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
@@ -13,27 +14,27 @@ import java.util.List;
  */
 public interface ImFriendShipService {
 
-    ResponseVO<ImportFriendShipResp> importFriendShip(ImportFriendShipReq req);
+    ImportFriendShipResp importFriendShip(ImportFriendShipReq req);
 
-    ResponseVO<Object> addFriend(AddFriendReq req);
+    void addFriend(AddFriendReq req);
 
-    ResponseVO<Object> doAddFriend(String fromId, FriendDto dto, Integer appId);
+    void doAddFriend(String fromId, FriendDto dto, Integer appId);
 
-    ResponseVO<Object> updateFriend(UpdateFriendReq req);
+    void updateFriend(UpdateFriendReq req);
 
-    ResponseVO<Object> deleteFriend(DeleteFriendReq req);
+    void deleteFriend(DeleteFriendReq req);
 
-    ResponseVO<Object> deleteAllFriend(DeleteFriendReq req);
+    void deleteAllFriend(DeleteFriendReq req);
 
-    ResponseVO<Object> getAllFriendShip(GetAllFriendShipReq req);
+    List<ImFriendShipEntity> getAllFriendShip(GetAllFriendShipReq req);
 
-    ResponseVO<Object> getRelation(GetRelationReq req);
+    ImFriendShipEntity getRelation(GetRelationReq req);
 
-    ResponseVO<List<CheckFriendShipResp>> checkFriendship(CheckFriendShipReq req);
+    List<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req);
 
-    ResponseVO<Object> addBlack(AddFriendShipBlackReq req);
+    void addBlack(AddFriendShipBlackReq req);
 
-    ResponseVO<Object> deleteBlack(DeleteBlackReq req);
+    void deleteBlack(DeleteBlackReq req);
 
-    ResponseVO<Object> checkBlack(CheckFriendShipReq req);
+    List<CheckFriendShipResp> checkBlack(CheckFriendShipReq req);
 }
