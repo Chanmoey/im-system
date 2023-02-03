@@ -32,7 +32,7 @@ public class ImUserController {
     }
 
     @RequestMapping("/getUserInfo")
-    public ResponseVO<GetUserInfoResp> getUserInfo(@RequestBody GetUserInfoReq req) {//@Validated
+    public ResponseVO<GetUserInfoResp> getUserInfo(@RequestBody GetUserInfoReq req) {
         return ResponseVO.successResponse(imUserService.getUserInfo(req));
     }
 
