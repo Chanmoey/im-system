@@ -2,6 +2,7 @@ package com.moon.im.service.config;
 
 import com.moon.im.common.config.AppConfig;
 import com.moon.im.common.route.RouteHandle;
+import com.moon.im.common.route.algorithm.loop.LoopHandle;
 import com.moon.im.common.route.algorithm.random.RandomHandle;
 import org.I0Itec.zkclient.ZkClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class BeanConfig {
 
     @Bean
     public RouteHandle routeHandle() {
-        return new RandomHandle();
+        return new LoopHandle();
     }
 
     @Bean
