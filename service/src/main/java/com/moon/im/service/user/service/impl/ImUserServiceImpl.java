@@ -1,7 +1,9 @@
 package com.moon.im.service.user.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.moon.im.common.ResponseVO;
+import com.moon.im.common.config.AppConfig;
+import com.moon.im.common.constant.CallbackCommand;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.DelFlagEnum;
 import com.moon.im.common.enums.UserErrorCode;
@@ -13,6 +15,8 @@ import com.moon.im.service.user.model.resp.DeleteUserResp;
 import com.moon.im.service.user.model.resp.GetUserInfoResp;
 import com.moon.im.service.user.model.resp.ImportUserResp;
 import com.moon.im.service.user.service.ImUserService;
+import com.moon.im.service.util.CallbackService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,12 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Autowired
     private ImUserDataMapper imUserDataMapper;
+
+    @Autowired
+    private AppConfig appConfig;
+
+    @Autowired
+    private CallbackService callbackService;
 
     @Override
     public ImportUserResp importUser(ImportUserReq req) {
@@ -131,6 +141,36 @@ public class ImUserServiceImpl implements ImUserService {
         resp.setSuccessId(successId);
         resp.setErrorId(errorId);
         return resp;
+    }
+
+    @Override
+    @Transactional
+    public void modifyUserInfo(ModifyUserInfoReq req) {
+        QueryWrapper<ImUserDataEntity> query = new QueryWrapper<>();
+        query.eq(DBColumn.APP_ID, req.getAppId());
+        query.eq(DBColumn.USER_ID, req.getUserId());
+        query.eq(DBColumn.DEL_FLAG, DelFlagEnum.NORMAL.getCode());
+        ImUserDataEntity user = imUserDataMapper.selectOne(query);
+        if (user == null) {
+            throw new ApplicationException(UserErrorCode.USER_IS_NOT_EXIST);
+        }
+
+        ImUserDataEntity update = new ImUserDataEntity();
+        BeanUtils.copyProperties(req, update);
+
+        update.setAppId(null);
+        update.setUserId(null);
+        int update1 = imUserDataMapper.update(update, query);
+        if (update1 != 1) {
+            throw new ApplicationException(UserErrorCode.MODIFY_USER_ERROR);
+        }
+
+        // 回调
+        if (appConfig.isModifyUserAfterCallback()) {
+            callbackService.callback(req.getAppId(),
+                    CallbackCommand.MODIFY_USER_AFTER,
+                    JSON.toJSONString(req));
+        }
     }
 
     @Override
