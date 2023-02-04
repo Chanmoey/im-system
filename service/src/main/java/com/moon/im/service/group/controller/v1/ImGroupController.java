@@ -43,31 +43,27 @@ public class ImGroupController {
     }
 
     @RequestMapping("/getJoinedGroup")
-    public ResponseVO<GetJoinedGroupResp> getJoinedGroup(@RequestBody @Validated GetJoinedGroupReq req)  {
+    public ResponseVO<GetJoinedGroupResp> getJoinedGroup(@RequestBody @Validated GetJoinedGroupReq req) {
         return ResponseVO.successResponse(groupService.getJoinedGroup(req));
     }
-//
-//
-//    @RequestMapping("/destroyGroup")
-//    public ResponseVO destroyGroup(@RequestBody @Validated DestroyGroupReq req, Integer appId, String identifier)  {
-//        req.setAppId(appId);
-//        req.setOperater(identifier);
-//        return groupService.destroyGroup(req);
-//    }
-//
-//    @RequestMapping("/transferGroup")
-//    public ResponseVO transferGroup(@RequestBody @Validated TransferGroupReq req, Integer appId, String identifier)  {
-//        req.setAppId(appId);
-//        req.setOperater(identifier);
-//        return groupService.transferGroup(req);
-//    }
-//
-//    @RequestMapping("/forbidSendMessage")
-//    public ResponseVO forbidSendMessage(@RequestBody @Validated MuteGroupReq req, Integer appId, String identifier)  {
-//        req.setAppId(appId);
-//        req.setOperater(identifier);
-//        return groupService.muteGroup(req);
-//    }
+
+    @RequestMapping("/destroyGroup")
+    public ResponseVO<Object> destroyGroup(@RequestBody @Validated DestroyGroupReq req) {
+        groupService.destroyGroup(req);
+        return ResponseVO.successResponse();
+    }
+
+    @RequestMapping("/transferGroup")
+    public ResponseVO<Object> transferGroup(@RequestBody @Validated TransferGroupReq req) {
+        groupService.transferGroup(req);
+        return ResponseVO.successResponse();
+    }
+
+    @RequestMapping("/forbidSendMessage")
+    public ResponseVO<Object> forbidSendMessage(@RequestBody @Validated MuteGroupReq req) {
+        groupService.muteGroup(req);
+        return ResponseVO.successResponse();
+    }
 //
 //    @RequestMapping("/sendMessage")
 //    public ResponseVO sendMessage(@RequestBody @Validated SendGroupMessageReq

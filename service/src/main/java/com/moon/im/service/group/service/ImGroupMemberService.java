@@ -31,4 +31,8 @@ public interface ImGroupMemberService {
     void removeMember(RemoveGroupMemberReq req);
 
     void removeGroupMember(String groupId, Integer appId, String memberId);
+
+    void updateGroupMember(UpdateGroupMemberReq req);
+
+    void speak(SpeaMemberReq req);
 }

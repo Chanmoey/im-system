@@ -48,6 +48,7 @@ public enum GroupErrorCode implements ApplicationExceptionEnum {
 
     REMOVE_GROUP_MEMBER_ERROR(40019, "移除群成员失败"),
 
+    MUTE_MEMBER_ERROR(40020, "禁言/解除禁言失败"),
     ;
 
     private final int code;

@@ -15,6 +15,7 @@ import com.moon.im.service.group.model.resp.AddMemberResp;
 import com.moon.im.service.group.model.resp.GetRoleInGroupResp;
 import com.moon.im.service.group.service.ImGroupMemberService;
 import com.moon.im.service.group.service.ImGroupService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -283,6 +284,125 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
         } catch (Exception e) {
             throw new ApplicationException(GroupErrorCode.REMOVE_GROUP_MEMBER_ERROR);
         }
+    }
 
+    @Override
+    public void updateGroupMember(UpdateGroupMemberReq req) {
+        boolean isAdmin = false;
+        ImGroupEntity group = imGroupService.getGroup(req.getGroupId(), req.getAppId());
+        if (group == null) {
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_NOT_EXIST);
+        }
+
+        //是否是自己修改自己的资料
+        boolean isMeOperate = req.getOperater().equals(req.getMemberId());
+
+        if (!isAdmin) {
+            //昵称只能自己修改 权限只能群主或管理员修改
+            if (StringUtils.isBlank(req.getAlias()) && !isMeOperate) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_ONESELF);
+            }
+            //私有群不能设置管理员
+            if (group.getGroupType() == GroupTypeEnum.PRIVATE.getCode() &&
+                    req.getRole() != null && (req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() ||
+                    req.getRole() == GroupMemberRoleEnum.OWNER.getCode())) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+
+            GetRoleInGroupResp roleInGroupOne = this.getRoleInGroupOne(req.getGroupId(), req.getOperater(), req.getAppId());
+            if (roleInGroupOne == null) {
+                throw new ApplicationException(GroupErrorCode.MEMBER_IS_NOT_JOINED_GROUP);
+            }
+            Integer roleInfo = roleInGroupOne.getRole();
+            boolean isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+            boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+            //不是管理员不能修改权限
+            if (req.getRole() != null && !isOwner && !isManager) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+            //管理员只有群主能够设置
+            if (req.getRole() != null && req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() && !isOwner) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_OWNER_ROLE);
+            }
+        }
+
+        ImGroupMemberEntity update = new ImGroupMemberEntity();
+        if (StringUtils.isNotBlank(req.getAlias())) {
+            update.setAlias(req.getAlias());
+        }
+
+        if (req.getRole() != null) {
+            update.setRole(req.getRole());
+        }
+
+        UpdateWrapper<ImGroupMemberEntity> objectUpdateWrapper = new UpdateWrapper<>();
+        objectUpdateWrapper.eq(DBColumn.APP_ID, req.getAppId());
+        objectUpdateWrapper.eq(DBColumn.MEMBER_ID, req.getMemberId());
+        objectUpdateWrapper.eq(DBColumn.GROUP_ID, req.getGroupId());
+        imGroupMemberMapper.update(update, objectUpdateWrapper);
+    }
+
+    @Override
+    public void speak(SpeaMemberReq req) {
+        ImGroupEntity group = imGroupService.getGroup(req.getGroupId(), req.getAppId());
+        if (group == null) {
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_NOT_EXIST);
+        }
+
+        boolean isAdmin = false;
+        boolean isOwner;
+        boolean isManager;
+        GetRoleInGroupResp memberRole = null;
+
+        if (!isAdmin) {
+
+            //获取操作人的权限 是管理员or群主or群成员
+            GetRoleInGroupResp role = getRoleInGroupOne(req.getGroupId(), req.getOperater(), req.getAppId());
+            if (role == null) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+
+            Integer roleInfo = role.getRole();
+
+            isOwner = roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+            isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
+
+            if (!isOwner && !isManager) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+
+            //获取被操作的权限
+            memberRole = this.getRoleInGroupOne(req.getGroupId(), req.getMemberId(), req.getAppId());
+            if (memberRole == null) {
+                throw new ApplicationException(GroupErrorCode.MEMBER_IS_NOT_JOINED_GROUP);
+            }
+            //被操作人是群主只能app管理员操作
+            if (memberRole.getRole() == GroupMemberRoleEnum.OWNER.getCode()) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_APP_MANAGER_ROLE);
+            }
+
+            // 操作人是管理员并且被操作人不是群成员，无法操作
+            if (isManager && memberRole.getRole() != GroupMemberRoleEnum.ORDINARY.getCode()) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_OWNER_ROLE);
+            }
+        }
+
+        ImGroupMemberEntity imGroupMemberEntity = new ImGroupMemberEntity();
+        imGroupMemberEntity.setGroupMemberId(memberRole.getGroupMemberId());
+        if (req.getSpeakDate() > 0) {
+            imGroupMemberEntity.setSpeakDate(System.currentTimeMillis() + req.getSpeakDate());
+        } else {
+            imGroupMemberEntity.setSpeakDate(req.getSpeakDate());
+        }
+
+        try {
+            int update = imGroupMemberMapper.updateById(imGroupMemberEntity);
+            if (update != 1) {
+                throw new ApplicationException(GroupErrorCode.MUTE_MEMBER_ERROR);
+            }
+        } catch (Exception e) {
+            throw new ApplicationException(GroupErrorCode.MUTE_MEMBER_ERROR);
+        }
     }
 }

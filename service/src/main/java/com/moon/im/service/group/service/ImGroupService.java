@@ -1,5 +1,6 @@
 package com.moon.im.service.group.service;
 
+import com.moon.im.common.ResponseVO;
 import com.moon.im.service.group.dao.ImGroupEntity;
 import com.moon.im.service.group.model.req.*;
 import com.moon.im.service.group.model.resp.GetGroupResp;
@@ -26,4 +27,6 @@ public interface ImGroupService {
     void destroyGroup(DestroyGroupReq req);
 
     void transferGroup(TransferGroupReq req);
+
+    void muteGroup(MuteGroupReq req);
 }

@@ -1,14 +1,11 @@
 package com.moon.im.service.group.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.moon.im.common.ResponseVO;
-import com.moon.im.common.constant.Constants;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.*;
-import com.moon.im.common.enums.command.GroupEventCommand;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.group.dao.ImGroupEntity;
 import com.moon.im.service.group.dao.mapper.ImGroupMapper;
@@ -24,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -297,5 +293,41 @@ public class ImGroupServiceImpl implements ImGroupService {
         updateGroupWrapper.eq(DBColumn.GROUP_ID, req.getGroupId());
         imGroupMapper.update(updateGroup, updateGroupWrapper);
         imGroupMemberService.transferGroupMember(req.getOwnerId(), req.getGroupId(), req.getAppId());
+    }
+
+    @Override
+    public void muteGroup(MuteGroupReq req) {
+        ImGroupEntity group = getGroup(req.getGroupId(), req.getAppId());
+        if (group == null) {
+            throw new ApplicationException(GroupErrorCode.GROUP_IS_NOT_EXIST);
+        }
+
+        boolean isAdmin = false;
+
+        if (!isAdmin) {
+            //不是后台调用需要检查权限
+            GetRoleInGroupResp role = imGroupMemberService.getRoleInGroupOne(req.getGroupId(), req.getOperater(), req.getAppId());
+
+            if (role == null) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_APP_MANAGER_ROLE);
+            }
+
+            Integer roleInfo = role.getRole();
+
+            boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode()
+                    || roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+
+            //公开群只能(群主/管理员)修改资料
+            if (!isManager) {
+                throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+        }
+
+        ImGroupEntity update = new ImGroupEntity();
+        update.setMute(req.getMute());
+        UpdateWrapper<ImGroupEntity> wrapper = new UpdateWrapper<>();
+        wrapper.eq(DBColumn.GROUP_ID, req.getGroupId());
+        wrapper.eq(DBColumn.APP_ID, req.getAppId());
+        imGroupMapper.update(update, wrapper);
     }
 }
