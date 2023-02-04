@@ -8,7 +8,9 @@ import com.moon.im.common.exception.ApplicationExceptionEnum;
  */
 public enum CommonErrorCode implements ApplicationExceptionEnum {
 
-    SERVER_ERROR(500, "服务器通用异常");
+    SERVER_ERROR(500, "服务器通用异常"),
+
+    ERROR_IP_ADDRESS(9999, "非标准的ip地址");
 
     private final int code;
     private final String error;

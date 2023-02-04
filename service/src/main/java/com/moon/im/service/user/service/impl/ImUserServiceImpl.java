@@ -132,4 +132,9 @@ public class ImUserServiceImpl implements ImUserService {
         resp.setErrorId(errorId);
         return resp;
     }
+
+    @Override
+    public void login(LoginReq req) {
+
+    }
 }
