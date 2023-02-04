@@ -25,8 +25,6 @@ public class LoopHandle implements RouteHandle {
 
         int size = values.size();
         int idx = (int) (index.incrementAndGet() % size);
-        System.out.println("idx"+idx);
-        System.out.println("size"+size);
         return values.get(idx);
     }
 }
