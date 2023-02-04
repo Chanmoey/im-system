@@ -6,10 +6,7 @@ import com.moon.im.common.ResponseVO;
 import com.moon.im.common.route.RouteHandle;
 import com.moon.im.common.route.RouteInfo;
 import com.moon.im.common.util.RouteInfoParseUtil;
-import com.moon.im.service.user.model.req.DeleteUserReq;
-import com.moon.im.service.user.model.req.GetUserInfoReq;
-import com.moon.im.service.user.model.req.ImportUserReq;
-import com.moon.im.service.user.model.req.LoginReq;
+import com.moon.im.service.user.model.req.*;
 import com.moon.im.service.user.model.resp.DeleteUserResp;
 import com.moon.im.service.user.model.resp.GetUserInfoResp;
 import com.moon.im.service.user.model.resp.ImportUserResp;
@@ -70,5 +67,11 @@ public class ImUserController {
         String s = routeHandle.routeServer(allNode, req.getUserId() + req.getAppId());
         RouteInfo routeInfo = RouteInfoParseUtil.parse(s);
         return ResponseVO.successResponse(routeInfo);
+    }
+
+    @RequestMapping("/modifyUserInfo")
+    public ResponseVO<Object> modifyUserInfo(@RequestBody @Validated ModifyUserInfoReq req){
+        imUserService.modifyUserInfo(req);
+        return ResponseVO.successResponse();
     }
 }

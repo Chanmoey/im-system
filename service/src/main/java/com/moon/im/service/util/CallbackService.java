@@ -28,7 +28,7 @@ public class CallbackService {
 
     public void callback(Integer appId, String callbackCommand, String jsonBody) {
         try {
-            httpRequestUtils.doPost("", Object.class, builderUrlParams(appId, callbackCommand),
+            httpRequestUtils.doPost(appConfig.getCallbackUrl(), Object.class, builderUrlParams(appId, callbackCommand),
                     jsonBody, null);
         } catch (Exception e) {
             logger.error("callback 回调 {}: {} 出现异常: {}",

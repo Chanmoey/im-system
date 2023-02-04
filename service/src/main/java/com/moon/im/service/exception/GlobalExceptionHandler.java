@@ -1,4 +1,4 @@
-package com.moon.im.service.user.exception;
+package com.moon.im.service.exception;
 
 import com.moon.im.common.BaseErrorCode;
 import com.moon.im.common.ResponseVO;
