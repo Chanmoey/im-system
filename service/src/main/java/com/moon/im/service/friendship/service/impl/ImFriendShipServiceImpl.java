@@ -1,7 +1,11 @@
 package com.moon.im.service.friendship.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.moon.im.common.ResponseVO;
+import com.moon.im.common.config.AppConfig;
+import com.moon.im.common.constant.CallbackCommand;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.AllowFriendTypeEnum;
 import com.moon.im.common.enums.CheckFriendShipTypeEnum;
@@ -10,6 +14,9 @@ import com.moon.im.common.enums.FriendShipStatusEnum;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipMapper;
+import com.moon.im.service.friendship.model.callback.AddFriendAfterCallbackDto;
+import com.moon.im.service.friendship.model.callback.AddFriendBlackAfterCallbackDto;
+import com.moon.im.service.friendship.model.callback.DeleteFriendAfterCallbackDto;
 import com.moon.im.service.friendship.model.req.*;
 import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
 import com.moon.im.service.friendship.model.resp.ImportFriendShipResp;
@@ -17,6 +24,7 @@ import com.moon.im.service.friendship.service.ImFriendShipRequestService;
 import com.moon.im.service.friendship.service.ImFriendShipService;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import com.moon.im.service.user.service.ImUserService;
+import com.moon.im.service.util.CallbackService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +51,12 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
 
     @Autowired
     private ImFriendShipRequestService imFriendShipRequestService;
+
+    @Autowired
+    private AppConfig appConfig;
+
+    @Autowired
+    private CallbackService callbackService;
 
     @Override
     public ImportFriendShipResp importFriendShip(ImportFriendShipReq req) {
@@ -84,6 +98,17 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
 
         checkUserIsExit(req.getFromId(), req.getAppId());
         ImUserDataEntity toUser = checkUserIsExit(req.getToItem().getToId(), req.getAppId());
+
+        // 之前回调
+        if (appConfig.isAddFriendBeforeCallback()) {
+            ResponseVO<Object> responseVO = callbackService.beforeCallback(req.getAppId(), CallbackCommand.ADD_FRIEND_BEFORE,
+                    JSON.toJSONString(req));
+
+            if (!responseVO.isOk()) {
+                throw new ApplicationException(responseVO.getCode(), responseVO.getMsg());
+            }
+        }
+
 
         // 对方添加好友的方式为：无需验证。
         if (toUser.getFriendAllowType() != null
@@ -173,6 +198,17 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
                 throw new ApplicationException(FriendShipErrorCode.ADD_FRIEND_ERROR);
             }
         }
+
+        // 之后回调
+        if (appConfig.isAddFriendAfterCallback()) {
+
+            AddFriendAfterCallbackDto callbackDto = new AddFriendAfterCallbackDto();
+            callbackDto.setFromId(fromId);
+            callbackDto.setToItem(dto);
+
+            callbackService.callback(appId, CallbackCommand.ADD_FRIEND_AFTER,
+                    JSON.toJSONString(callbackDto));
+        }
     }
 
     @Override
@@ -191,7 +227,19 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
                 .eq(ImFriendShipEntity::getToId, dto.getToId())
                 .eq(ImFriendShipEntity::getFromId, fromId);
 
-        imFriendShipMapper.update(null, updateWrapper);
+        int update = imFriendShipMapper.update(null, updateWrapper);
+
+        if (update != 1) {
+            throw new ApplicationException(FriendShipErrorCode.UPDATE_FRIEND_ERROR);
+        }
+
+        if (appConfig.isModifyFriendAfterCallback()) {
+            AddFriendAfterCallbackDto callbackDto = new AddFriendAfterCallbackDto();
+            callbackDto.setFromId(fromId);
+            callbackDto.setToItem(dto);
+            callbackService.callback(appId, CallbackCommand.UPDATE_FRIEND_AFTER,
+                    JSON.toJSONString(callbackDto));
+        }
     }
 
     @Override
@@ -213,6 +261,17 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
             imFriendShipMapper.update(update, query);
         } else {
             throw new ApplicationException(FriendShipErrorCode.FRIEND_IS_DELETED);
+        }
+
+        // 之后回调
+        if (appConfig.isDeleteFriendAfterCallback()) {
+
+            DeleteFriendAfterCallbackDto callbackDto = new DeleteFriendAfterCallbackDto();
+            callbackDto.setFromId(req.getFromId());
+            callbackDto.setToId(req.getToId());
+
+            callbackService.callback(req.getAppId(), CallbackCommand.DELETE_FRIEND_AFTER,
+                    JSON.toJSONString(callbackDto));
         }
     }
 
@@ -327,6 +386,17 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
                 }
             }
         }
+
+        // 之后回调
+        if (appConfig.isAddFriendShipBlackAfterCallback()) {
+
+            AddFriendBlackAfterCallbackDto callbackDto = new AddFriendBlackAfterCallbackDto();
+            callbackDto.setFromId(req.getFromId());
+            callbackDto.setToId(req.getToId());
+
+            callbackService.callback(req.getAppId(), CallbackCommand.ADD_BLACK_AFTER,
+                    JSON.toJSONString(callbackDto));
+        }
     }
 
     @Override
@@ -343,7 +413,22 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
 
         ImFriendShipEntity update = new ImFriendShipEntity();
         update.setBlack(FriendShipStatusEnum.BLACK_STATUS_NORMAL.getCode());
-        imFriendShipMapper.update(update, queryFrom);
+        int update1 = imFriendShipMapper.update(update, queryFrom);
+
+        if (update1 != 1) {
+            throw new ApplicationException(FriendShipErrorCode.UPDATE_FRIEND_ERROR);
+        }
+
+        // 之后回调
+        if (appConfig.isDeleteFriendShipBlackAfterCallback()) {
+
+            AddFriendBlackAfterCallbackDto callbackDto = new AddFriendBlackAfterCallbackDto();
+            callbackDto.setFromId(req.getFromId());
+            callbackDto.setToId(req.getToId());
+
+            callbackService.callback(req.getAppId(), CallbackCommand.DELETE_BLACK,
+                    JSON.toJSONString(callbackDto));
+        }
     }
 
     @Override
