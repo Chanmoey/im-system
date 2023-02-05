@@ -1,6 +1,7 @@
 package com.moon.im.service.friendship.service;
 
 import com.moon.im.common.ResponseVO;
+import com.moon.im.common.model.RequestBase;
 import com.moon.im.service.friendship.dao.ImFriendShipEntity;
 import com.moon.im.service.friendship.model.req.*;
 import com.moon.im.service.friendship.model.resp.CheckFriendShipResp;
@@ -18,7 +19,7 @@ public interface ImFriendShipService {
 
     void addFriend(AddFriendReq req);
 
-    void doAddFriend(String fromId, FriendDto dto, Integer appId);
+    void doAddFriend(RequestBase requestBase, String fromId, FriendDto dto, Integer appId);
 
     void updateFriend(UpdateFriendReq req);
 
