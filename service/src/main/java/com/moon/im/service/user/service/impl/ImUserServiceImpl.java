@@ -2,11 +2,13 @@ package com.moon.im.service.user.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.moon.im.codec.pack.user.UserModifyPack;
 import com.moon.im.common.config.AppConfig;
 import com.moon.im.common.constant.CallbackCommand;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.DelFlagEnum;
 import com.moon.im.common.enums.UserErrorCode;
+import com.moon.im.common.enums.command.UserEventCommand;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.user.dao.ImUserDataEntity;
 import com.moon.im.service.user.dao.mapper.ImUserDataMapper;
@@ -16,6 +18,7 @@ import com.moon.im.service.user.model.resp.GetUserInfoResp;
 import com.moon.im.service.user.model.resp.ImportUserResp;
 import com.moon.im.service.user.service.ImUserService;
 import com.moon.im.service.util.CallbackService;
+import com.moon.im.service.util.MessageProducer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,9 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Autowired
     private CallbackService callbackService;
+
+    @Autowired
+    private MessageProducer messageProducer;
 
     @Override
     public ImportUserResp importUser(ImportUserReq req) {
@@ -164,6 +170,12 @@ public class ImUserServiceImpl implements ImUserService {
         if (update1 != 1) {
             throw new ApplicationException(UserErrorCode.MODIFY_USER_ERROR);
         }
+
+        // 发送通知给其他客户端
+        UserModifyPack pack = new UserModifyPack();
+        BeanUtils.copyProperties(req, pack);
+        messageProducer.sendToUser(req.getUserId(), req.getClientType(), req.getImei(),
+                UserEventCommand.USER_MODIFY, pack, req.getAppId());
 
         // 回调
         if (appConfig.isModifyUserAfterCallback()) {

@@ -7,6 +7,7 @@ import com.moon.im.common.enums.command.Command;
 import com.moon.im.common.model.ClientInfo;
 import com.moon.im.common.model.UserSession;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,6 +65,19 @@ public class MessageProducer {
 
         for (UserSession userSession : userSessions) {
             sendPack(toId, command, data, userSession);
+        }
+    }
+
+    /**
+     * 如果是管理员操作，则需要发送给所有人，如果是用户发送，则需要发送给除了自己之外的所有人
+     */
+    public void sendToUser(String toId, Integer clientType,String imei, Command command,
+                           Object data, Integer appId){
+        if(clientType != null && StringUtils.isNotBlank(imei)){
+            ClientInfo clientInfo = new ClientInfo(appId, clientType, imei);
+            sendToUserExceptClient(toId,command,data,clientInfo);
+        }else{
+            sendToUser(toId,command,data,appId);
         }
     }
 

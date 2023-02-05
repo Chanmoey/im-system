@@ -4,8 +4,6 @@ public enum UserEventCommand implements Command {
 
     //用户修改command 4000
     USER_MODIFY(4000),
-
-
     ;
 
     private final int command;
