@@ -1,10 +1,13 @@
 package com.moon.im.service.friendship.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.moon.im.codec.pack.friendship.ApproverFriendRequestPack;
+import com.moon.im.codec.pack.friendship.ReadAllFriendRequestPack;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.ApproverFriendRequestStatusEnum;
 import com.moon.im.common.enums.FriendShipErrorCode;
 import com.moon.im.common.enums.RequestFriendReadStatusEnum;
+import com.moon.im.common.enums.command.FriendshipEventCommand;
 import com.moon.im.common.exception.ApplicationException;
 import com.moon.im.service.friendship.dao.ImFriendShipRequestEntity;
 import com.moon.im.service.friendship.dao.mapper.ImFriendShipRequestMapper;
@@ -14,12 +17,12 @@ import com.moon.im.service.friendship.model.req.GetFriendShipRequestReq;
 import com.moon.im.service.friendship.model.req.ReadFriendShipRequestReq;
 import com.moon.im.service.friendship.service.ImFriendShipRequestService;
 import com.moon.im.service.friendship.service.ImFriendShipService;
+import com.moon.im.service.util.MessageProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -35,6 +38,9 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
     // TODO 解决循环依赖
     @Autowired
     private ImFriendShipService imFriendShipService;
+
+    @Autowired
+    private MessageProducer messageProducer;
 
     @Override
     public void addFriendshipRequest(String fromId, FriendDto dto, Integer appId) {
@@ -88,6 +94,10 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
             } catch (Exception e) {
                 throw new ApplicationException(FriendShipErrorCode.ADD_FRIEND_ERROR);
             }
+
+            // A添加B，需要给B发送好友申请的记录
+            messageProducer.sendToUser(dto.getToId(), null, "",
+                    FriendshipEventCommand.FRIEND_REQUEST, request, appId);
         }
     }
 
@@ -119,8 +129,16 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
             dto.setAddWording(imFriendShipRequestEntity.getAddWording());
             dto.setRemark(imFriendShipRequestEntity.getRemark());
             dto.setToId(imFriendShipRequestEntity.getToId());
-            imFriendShipService.doAddFriend(imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
+            imFriendShipService.doAddFriend(req, imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
         }
+
+        ApproverFriendRequestPack approverFriendRequestPack = new ApproverFriendRequestPack();
+        approverFriendRequestPack.setId(req.getId());
+        approverFriendRequestPack.setStatus(req.getStatus());
+        messageProducer.sendToUser(imFriendShipRequestEntity.getToId(),
+                req.getClientType(), req.getImei(),
+                FriendshipEventCommand.FRIEND_REQUEST_APPROVER, approverFriendRequestPack,
+                req.getAppId());
     }
 
     @Override
@@ -134,6 +152,12 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
         ImFriendShipRequestEntity update = new ImFriendShipRequestEntity();
         update.setReadStatus(RequestFriendReadStatusEnum.READ.getCode());
         imFriendShipRequestMapper.update(update, query);
+
+        ReadAllFriendRequestPack readAllFriendRequestPack = new ReadAllFriendRequestPack();
+        readAllFriendRequestPack.setFromId(req.getFromId());
+        messageProducer.sendToUser(req.getFromId(), req.getClientType(), req.getImei(),
+                FriendshipEventCommand.FRIEND_REQUEST_READ, readAllFriendRequestPack,
+                req.getAppId());
     }
 
     @Override
