@@ -22,6 +22,8 @@ public interface ImGroupMemberService {
 
     List<GroupMemberDto> getGroupMembers(String groupId, Integer appId);
 
+    List<String> getGroupMemberId(String groupId, Integer appId);
+
     List<String> getMemberJoinedGroupIds(GetJoinedGroupReq req);
 
     void transferGroupMember(String owner, String groupId, Integer appId);

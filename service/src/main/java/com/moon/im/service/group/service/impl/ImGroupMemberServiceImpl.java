@@ -450,4 +450,9 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
             throw new ApplicationException(GroupErrorCode.MUTE_MEMBER_ERROR);
         }
     }
+
+    @Override
+    public List<String> getGroupMemberId(String groupId, Integer appId) {
+        return imGroupMemberMapper.getGroupMemberId(appId, groupId);
+    }
 }
