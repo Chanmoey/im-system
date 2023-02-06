@@ -4,11 +4,16 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.moon.im.codec.pack.group.CreateGroupPack;
+import com.moon.im.codec.pack.group.DestroyGroupPack;
+import com.moon.im.codec.pack.group.UpdateGroupInfoPack;
 import com.moon.im.common.config.AppConfig;
 import com.moon.im.common.constant.CallbackCommand;
 import com.moon.im.common.constant.DBColumn;
 import com.moon.im.common.enums.*;
+import com.moon.im.common.enums.command.GroupEventCommand;
 import com.moon.im.common.exception.ApplicationException;
+import com.moon.im.common.model.ClientInfo;
 import com.moon.im.service.group.dao.ImGroupEntity;
 import com.moon.im.service.group.dao.mapper.ImGroupMapper;
 import com.moon.im.service.group.model.callback.DestroyGroupCallbackDto;
@@ -19,6 +24,7 @@ import com.moon.im.service.group.model.resp.GetRoleInGroupResp;
 import com.moon.im.service.group.service.ImGroupMemberService;
 import com.moon.im.service.group.service.ImGroupService;
 import com.moon.im.service.util.CallbackService;
+import com.moon.im.service.util.GroupMessageProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +52,9 @@ public class ImGroupServiceImpl implements ImGroupService {
 
     @Autowired
     private CallbackService callbackService;
+
+    @Autowired
+    private GroupMessageProducer groupMessageProducer;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -143,6 +152,11 @@ public class ImGroupServiceImpl implements ImGroupService {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
         }
 
+        UpdateGroupInfoPack pack = new UpdateGroupInfoPack();
+        BeanUtils.copyProperties(req, pack);
+        groupMessageProducer.producer(req.getOperater(), GroupEventCommand.UPDATED_GROUP,
+                pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         // 之后回调
         if (appConfig.isModifyGroupAfterCallback()) {
             callbackService.callback(req.getAppId(), CallbackCommand.UPDATE_GROUP_AFTER,
@@ -207,6 +221,11 @@ public class ImGroupServiceImpl implements ImGroupService {
         for (GroupMemberDto dto : req.getMember()) {
             imGroupMemberService.addGroupMember(req.getGroupId(), req.getAppId(), dto);
         }
+
+        CreateGroupPack createGroupPack = new CreateGroupPack();
+        BeanUtils.copyProperties(imGroupEntity, createGroupPack);
+        groupMessageProducer.producer(req.getOperater(), GroupEventCommand.CREATED_GROUP, createGroupPack
+                , new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         // 之后回调
         if (appConfig.isCreateGroupAfterCallback()) {
@@ -286,6 +305,11 @@ public class ImGroupServiceImpl implements ImGroupService {
         if (update1 != 1) {
             throw new ApplicationException(GroupErrorCode.UPDATE_GROUP_BASE_INFO_ERROR);
         }
+
+        DestroyGroupPack pack = new DestroyGroupPack();
+        pack.setGroupId(req.getGroupId());
+        groupMessageProducer.producer(req.getOperater(),
+                GroupEventCommand.DESTROY_GROUP, pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         // 之后回调
         if (appConfig.isModifyGroupAfterCallback()) {

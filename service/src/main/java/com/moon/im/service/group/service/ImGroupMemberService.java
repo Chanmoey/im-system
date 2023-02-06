@@ -37,4 +37,6 @@ public interface ImGroupMemberService {
     void updateGroupMember(UpdateGroupMemberReq req);
 
     void speak(SpeaMemberReq req);
+
+    List<GroupMemberDto> getGroupManager(String groupId, Integer appId);
 }
