@@ -3,6 +3,8 @@ package com.moon.im.service.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.moon.im.codec.proto.MessagePack;
+import com.moon.im.common.constant.Constants;
+import com.moon.im.common.constant.RabbitConstants;
 import com.moon.im.common.enums.command.Command;
 import com.moon.im.common.model.ClientInfo;
 import com.moon.im.common.model.UserSession;
@@ -29,10 +31,12 @@ public class MessageProducer {
     @Autowired
     private UserSessionUtils userSessionUtils;
 
+    private static final String QUEUE_NAME = RabbitConstants.MESSAGE_SERVICE_2_IM;
+
     public boolean sendMessage(UserSession session, Object msg) {
         try {
             log.info("send message == {}", msg);
-            rabbitTemplate.convertAndSend("", session.getBrokerId() + "", msg);
+            rabbitTemplate.convertAndSend(QUEUE_NAME, session.getBrokerId() + "", msg);
             return true;
         } catch (Exception e) {
             log.error("send message error, {}", e.getMessage());

@@ -1,7 +1,11 @@
 package com.moon.im.tcp.mq.receiver;
 
+import com.alibaba.fastjson.JSON;
+import com.moon.im.codec.proto.MessagePack;
 import com.moon.im.common.constant.RabbitConstants;
 import com.moon.im.tcp.mq.RabbitMqFactory;
+import com.moon.im.tcp.mq.receiver.process.BaseProcess;
+import com.moon.im.tcp.mq.receiver.process.ProcessFactory;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
@@ -38,9 +42,17 @@ public class RabbitMqMessageReceiver {
                                                    Envelope envelope,
                                                    AMQP.BasicProperties properties,
                                                    byte[] body) throws IOException {
-                            // TODO 处理消息服务发来的消息
-                            String message = new String(body);
-                            log.info(message);
+                            try {
+                                String msgSrt = new String(body);
+                                log.info(msgSrt);
+                                MessagePack messagePack = JSON.parseObject(msgSrt, MessagePack.class);
+                                BaseProcess messageProcess = ProcessFactory.getMessageProcess(messagePack.getClientType());
+                                messageProcess.process(messagePack);
+                                channel.basicAck(envelope.getDeliveryTag(), false);
+                            } catch (Exception e) {
+                                log.error("process message error, {}", e.getMessage());
+                                channel.basicNack(envelope.getDeliveryTag(), false, false);
+                            }
                         }
                     }
             );
