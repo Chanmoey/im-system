@@ -8,7 +8,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author Chanmoey
  * @date 2023年01月29日
  */
-//@Configuration
+@Configuration
 public class AutoPrefixUrlMappingInfoConfig implements WebMvcRegistrations {
 
     @Override

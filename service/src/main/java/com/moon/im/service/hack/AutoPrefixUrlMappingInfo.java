@@ -20,14 +20,17 @@ public class AutoPrefixUrlMappingInfo extends RequestMappingHandlerMapping {
         RequestMappingInfo mappingInfo = super.getMappingForMethod(method, handlerType);
         if (mappingInfo != null) {
             String prefix = this.getPrefix(handlerType);
-            RequestMappingInfo.paths(prefix).options(super.getBuilderConfiguration()).build().combine(mappingInfo);
+            return RequestMappingInfo.paths(prefix).build().combine(mappingInfo);
         }
         return null;
     }
 
     private String getPrefix(Class<?> handlerType) {
         String packageName = handlerType.getPackage().getName();
-        String dotPath = packageName.replace(controllerPackagePath, "");
+        String dotPath = packageName.replaceAll(controllerPackagePath, "");
+        if ("".equals(dotPath)) {
+            return "/";
+        }
         return dotPath.replace(".", "/");
     }
 }
